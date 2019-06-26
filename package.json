@@ -1,0 +1,17 @@
+{
+  "name": "cordova-plugin-hybridrtc",
+  "version": "0.0.1",
+  "description": "混合APPIM库封装",
+  "cordova": {
+    "id": "cordova-plugin-hybridrtc",
+    "platforms": [
+      "ios"
+    ]
+  },
+  "keywords": [
+    "ecosystem:cordova",
+    "cordova-ios"
+  ],
+  "author": "",
+  "license": "ISC"
+}
