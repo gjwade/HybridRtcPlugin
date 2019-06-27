@@ -8,10 +8,18 @@
       "ios"
     ]
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gjwade/HybridRtcPlugin.git"
+  },
   "keywords": [
     "ecosystem:cordova",
     "cordova-ios"
   ],
-  "author": "",
-  "license": "ISC"
+  "author": "dewade",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gjwade/HybridRtcPlugin/issues"
+  },
+  "homepage": "https://github.com/gjwade/HybridRtcPlugin/blob/master/README.md"
 }
