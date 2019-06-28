@@ -30,6 +30,12 @@
     <source-file src="src/ios/AFHttpTool.m"/>
     <header-file src="src/ios/ChatListViewController.h"/>
     <source-file src="src/ios/ChatListViewController.m"/>
+    <header-file src="src/ios/ContactSelectCell.h"/>
+    <source-file src="src/ios/ContactSelectCell.m"/>
+    <header-file src="src/ios/ContactSelectModel.h"/>
+    <source-file src="src/ios/ContactSelectModel.m"/>
+    <header-file src="src/ios/ContactSelectViewController.h"/>
+    <source-file src="src/ios/ContactSelectViewController.m"/>
     <header-file src="src/ios/ContractViewController.h"/>
     <source-file src="src/ios/ContractViewController.m"/>
     <header-file src="src/ios/ConversationViewController.h"/>
