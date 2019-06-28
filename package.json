@@ -1,6 +1,6 @@
 {
   "name": "cordova-plugin-hybridrtc",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "混合APPIM库封装",
   "cordova": {
     "id": "cordova-plugin-hybridrtc",
