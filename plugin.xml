@@ -65,6 +65,8 @@
     <resource-file src="src/ios/RongCloudKit.strings"/>
     <resource-file src="src/ios/user_male@2x.png"/>
     <resource-file src="src/ios/user_male@3x.png"/>
+    <resource-file src="src/ios/select.png"/>
+    <resource-file src="src/ios/unselect.png"/>
 
     <source-file src="src/ios/libopencore-amrnb.a" target-dir="lib" framework="true" />
     <source-file src="src/ios/libopencore-amrwb.a" target-dir="lib" framework="true" />

@@ -6,12 +6,14 @@
 #import <RongCallKit/RongCallKit.h>
 #import "RongYunMainVC.h"
 #import "RCDRCIMDataSource.h"
-#import "RCDHTTPTOOL.h"
+#import "RCDHttpTool.h"
 #import "RCDataBaseManager.h"
 #import "AFHttpTool.h"
 #import "RCDUtilities.h"
 
 @interface HybridRtcPlugin()<RCCallSessionDelegate, RCIMConnectionStatusDelegate, RCIMReceiveMessageDelegate, RCIMUserInfoDataSource, RCIMGroupMemberDataSource>
+
+@property(nonatomic, strong) NSString *userId;
 
 @end
 
@@ -80,9 +82,11 @@
 
 - (void)connectWithToken:(CDVInvokedUrlCommand *)command {
     //    NSString *appKey = [command.arguments objectAtIndex: 0];
-    NSString *appKey = @"n19jmcy59f1q9";
-    [[RCIM sharedRCIM] initWithAppKey:appKey];
-    [self initialSetup];
+    NSLog(@"----------%ld", [[RCIM sharedRCIM] getConnectionStatus]);
+    if ([[RCIM sharedRCIM] getConnectionStatus] == ConnectionStatus_Unconnected) {
+        [[RCIM sharedRCIM] initWithAppKey:@"n19jmcy59f1q9"];
+        [self initialSetup];
+    }
     [self loginToserve:command];
 }
 - (void)startCall:(CDVInvokedUrlCommand*)command {
@@ -145,7 +149,7 @@
     NSString *userId = [command.arguments objectAtIndex: 0];
     [[RCCall sharedRCCall] startSingleCall:userId mediaType:RCCallMediaVideo];
 }
-- (void)connectSucces: (CDVInvokedUrlCommand*)command userId: (NSString *)userId {
+- (void)connectSucces:(NSString *)userId {
     NSLog(@"连接成功");
     [self dataSync: userId];
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -184,8 +188,9 @@
         NSLog(@"%@", response);
         NSString *token = response[@"result"][@"token"];
         NSString *userId = response[@"result"][@"id"];
+        weakSelf.userId = userId;
         [[RCIM sharedRCIM] connectWithToken:token success:^(NSString *userId) {
-            [self connectSucces:command userId:userId];
+//            [self connectSucces:command userId:userId];
             pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:userId];
             [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         } error:^(RCConnectErrorCode status) {
@@ -239,7 +244,10 @@
  *  @param status 网络状态。
  */
 - (void)onRCIMConnectionStatusChanged:(RCConnectionStatus)status {
-    NSLog(@"%ld", status);
+    NSLog(@"+++++++%ld", status);
+    if (status == ConnectionStatus_Connected) {
+        [self connectSucces:self.userId];
+    }
 }
 
 #pragma mark - RCIMReceiveMessageDelegate

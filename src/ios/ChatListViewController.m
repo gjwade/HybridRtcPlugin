@@ -41,7 +41,7 @@
     ConversationViewController *conversationVC = [[ConversationViewController alloc] init];
     conversationVC.conversationType = model.conversationType;
     conversationVC.targetId = model.targetId;
-    conversationVC.title = model.targetId;
+    conversationVC.title = model.conversationTitle;
     [self.navigationController pushViewController:conversationVC animated:true];
 }
 @end

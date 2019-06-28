@@ -32,7 +32,7 @@
 
 - (void)closeButtonClick {
     NSLog(@"closeButtonClick");
-    [[RCIMClient sharedRCIMClient] disconnect];
+    [[RCIMClient sharedRCIMClient] logout];
     [self dismissViewControllerAnimated:false completion:nil];
 }
 
