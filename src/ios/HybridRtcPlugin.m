@@ -10,6 +10,8 @@
 #import "RCDataBaseManager.h"
 #import "AFHttpTool.h"
 #import "RCDUtilities.h"
+#import <MJExtension.h>
+#import "ConversationViewController.h"
 
 @interface HybridRtcPlugin()<RCCallSessionDelegate, RCIMConnectionStatusDelegate, RCIMReceiveMessageDelegate, RCIMUserInfoDataSource, RCIMGroupMemberDataSource>
 
@@ -56,39 +58,48 @@
     CDVPluginResult *pluginResult = nil;
     NSString *appKey = [command.arguments objectAtIndex: 0];
     [[RCIM sharedRCIM] initWithAppKey:appKey];
-    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"连接成功"];
+    [self initialSetup];
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"sdk初始化成功"];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
-//- (void)connectWithToken:(CDVInvokedUrlCommand *)command {
-//    __block CDVPluginResult *pluginResult = nil;
-//    __weak __typeof(self) weakSelf = self;
-////    NSString *appKey = [command.arguments objectAtIndex: 0];
-//    NSString *appKey = @"n19jmcy59f1q9";
-//    [[RCIM sharedRCIM] initWithAppKey:appKey];
-//    [self initialSetup];
-//    NSString *token = [command.arguments objectAtIndex: 1];
-//    [[RCIM sharedRCIM] connectWithToken:token success:^(NSString *userId) {
-//        [self connectSucces:command];
-//        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:userId];
-//        [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-//    } error:^(RCConnectErrorCode status) {
-//        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsInt:status];
-//        [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-//    } tokenIncorrect:^{
-//        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"token不正确"];
-//        [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-//    }];
-//}
-
 - (void)connectWithToken:(CDVInvokedUrlCommand *)command {
-    //    NSString *appKey = [command.arguments objectAtIndex: 0];
-    NSLog(@"----------%ld", [[RCIM sharedRCIM] getConnectionStatus]);
-    if ([[RCIM sharedRCIM] getConnectionStatus] == ConnectionStatus_Unconnected) {
-        [[RCIM sharedRCIM] initWithAppKey:@"n19jmcy59f1q9"];
-        [self initialSetup];
-    }
-    [self loginToserve:command];
+    __block CDVPluginResult *pluginResult = nil;
+    __weak __typeof(self) weakSelf = self;
+//    NSString *appKey = [command.arguments objectAtIndex: 0];
+    NSString *appKey = @"mgb7ka1nmd1vg";
+    [[RCIM sharedRCIM] initWithAppKey:appKey];
+    [self initialSetup];
+    NSString *token = [command.arguments objectAtIndex: 0];
+    [[RCIM sharedRCIM] connectWithToken:token success:^(NSString *userId) {
+//        NSArray *chatList = [self conversationListAccept];
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:@[]];
+        [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    } error:^(RCConnectErrorCode status) {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsInt:status];
+        [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    } tokenIncorrect:^{
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"token不正确"];
+        [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }];
 }
+
+- (void)getConversationList:(CDVInvokedUrlCommand *)command {
+    __block CDVPluginResult *pluginResult = nil;
+    __weak __typeof(self) weakSelf = self;
+    NSArray *chatList = [self conversationListAccept];
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:chatList];
+    [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+//- (void)connectWithToken:(CDVInvokedUrlCommand *)command {
+//    //    NSString *appKey = [command.arguments objectAtIndex: 0];
+//    NSLog(@"----------%ld", [[RCIM sharedRCIM] getConnectionStatus]);
+//    if ([[RCIM sharedRCIM] getConnectionStatus] == ConnectionStatus_Unconnected) {
+//        [[RCIM sharedRCIM] initWithAppKey:@"n19jmcy59f1q9"];
+//        [self initialSetup];
+//    }
+//    [self loginToserve:command];
+//}
 - (void)startCall:(CDVInvokedUrlCommand*)command {
     RCConversationType conversationType = [[command.arguments objectAtIndex: 0] intValue];
     NSString *targetId = [command.arguments objectAtIndex: 1];
@@ -153,10 +164,11 @@
     NSLog(@"连接成功");
     [self dataSync: userId];
     dispatch_async(dispatch_get_main_queue(), ^{
-        UIStoryboard *rongyunSb = [UIStoryboard storyboardWithName:@"RongYunStoryboard" bundle:nil];
-        RongYunMainVC *mainVC = (RongYunMainVC *)[rongyunSb instantiateViewControllerWithIdentifier:@"RongYunMainVC"];
-        UIViewController *rootVC = [[UIApplication sharedApplication] keyWindow].rootViewController;
-        [rootVC presentViewController:mainVC animated:false completion:nil];
+//        UIStoryboard *rongyunSb = [UIStoryboard storyboardWithName:@"RongYunStoryboard" bundle:nil];
+//        RongYunMainVC *mainVC = (RongYunMainVC *)[rongyunSb instantiateViewControllerWithIdentifier:@"RongYunMainVC"];
+//        UIViewController *rootVC = [[UIApplication sharedApplication] keyWindow].rootViewController;
+//        NSLog(@"%@", rootVC);
+//        [rootVC presentViewController:mainVC animated:false completion:nil];
     });
 }
 - (void)groupChat:(CDVInvokedUrlCommand*)command {
@@ -191,7 +203,8 @@
         weakSelf.userId = userId;
         [[RCIM sharedRCIM] connectWithToken:token success:^(NSString *userId) {
 //            [self connectSucces:command userId:userId];
-            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:userId];
+            NSArray *chatList = [self conversationListAccept];
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:chatList];
             [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         } error:^(RCConnectErrorCode status) {
             pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsInt:status];
@@ -203,6 +216,114 @@
     } failure:^(NSError *err) {
         NSLog(@"%@", err);
     }];
+}
+
+-(NSArray *)conversationListAccept {
+    NSArray *conversationList = [[RCIMClient sharedRCIMClient]
+                                 getConversationList:@[@(ConversationType_PRIVATE),
+                                                       @(ConversationType_DISCUSSION),
+                                                       @(ConversationType_GROUP),
+                                                       @(ConversationType_SYSTEM),
+                                                       @(ConversationType_APPSERVICE),
+                                                       @(ConversationType_PUBLICSERVICE)]];
+    NSLog(@"%@", conversationList);
+    NSMutableArray *resultList = [NSMutableArray array];
+    for (RCConversation *conversation in conversationList) {
+        NSDictionary *result = [self toNSDictionary:conversation];
+        [resultList addObject:result];
+    }
+//
+//    NSMutableArray *latestMessageList = [NSMutableArray array];
+//    for (RCConversation *conversation in conversationList) {
+//        NSDictionary *result = [conversation.lastestMessage mj_keyValues];
+//        [latestMessageList addObject:result];
+//        NSLog(@"会话类型：%lu，目标会话ID：%@", (unsigned long)conversation.conversationType, conversation.targetId);
+//        NSLog(@"%@", conversation.lastestMessage);
+//    }
+//    NSLog(@"%@", latestMessageList);
+//
+//    NSArray *otherInfoList = [RCConversation mj_keyValuesArrayWithObjectArray:conversationList ignoredKeys:@[@"lastestMessage"]];
+//    NSLog(@"%@", otherInfoList);
+//    NSMutableArray *resultList = [NSMutableArray array];
+//    for (int i = 0; i < otherInfoList.count; i++) {
+//        RCConversation *conversation = conversationList[i];
+//        RCMessageContent *message = conversation.lastestMessage;
+//        NSDictionary *messageJson = [message mj_keyValuesWithIgnoredKeys: @[@"superclass", @"originalImageData",@"thumbnailImage", @"location"]];
+//        NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:otherInfoList[i]];
+//        if (messageJson) {
+//            [dict setObject:messageJson forKey:@"lastestMessage"];
+//        }
+//        [resultList addObject:dict];
+//    }
+    NSLog(@"%@", resultList);
+    return resultList;
+}
+
+- (NSMutableDictionary *)toNSDictionary: (RCConversation *)conversation {
+    NSMutableDictionary *dictionary = [[NSMutableDictionary alloc] init];
+    [dictionary setValue: [NSNumber numberWithInteger:conversation.conversationType] forKey:@"conversationType"];
+    [dictionary setValue:conversation.targetId forKey:@"targetId"];
+    [dictionary setValue:conversation.conversationTitle forKey:@"conversationTitle"];
+    [dictionary setValue: [NSNumber numberWithInteger:conversation.unreadMessageCount] forKey:@"unreadMessageCount"];
+    [dictionary setValue: [NSNumber numberWithInteger:conversation.isTop] forKey:@"isTop"];
+    [dictionary setValue: [NSNumber numberWithInteger:conversation.receivedStatus] forKey:@"receivedStatus"];
+    [dictionary setValue: [NSNumber numberWithInteger:conversation.sentStatus] forKey:@"sentStatus"];
+    [dictionary setValue: [NSNumber numberWithInteger:conversation.receivedTime] forKey:@"receivedTime"];
+    [dictionary setValue: [NSNumber numberWithInteger:conversation.sentTime] forKey:@"sentTime"];
+    [dictionary setValue:conversation.draft forKey:@"draft"];
+    [dictionary setValue:conversation.objectName forKey:@"objectName"];
+    [dictionary setValue:conversation.senderUserId forKey:@"senderUserId"];
+    [dictionary setValue: [NSNumber numberWithInteger:conversation.lastestMessageId] forKey:@"lastestMessageId"];
+    [dictionary setValue:[NSNumber numberWithInteger:conversation.lastestMessageDirection] forKey:@"lastestMessageDirection"];
+//    [dictionary setValue:conversation.jsonDict forKey:@"jsonDict"];
+    [dictionary setValue:conversation.lastestMessageUId forKey:@"lastestMessageUId"];
+    [dictionary setValue:[NSNumber numberWithInteger:conversation.hasUnreadMentioned] forKey:@"hasUnreadMentioned"];
+    NSString *messageContent = [self messageContentSetup:conversation.lastestMessage objectName:conversation.objectName];
+    [dictionary setValue:messageContent  forKey:@"messageContent"];
+    NSString *messageFrom = [self messageFromSetup:conversation];
+    [dictionary setValue:messageFrom forKey:@"messageFrom"];
+    return dictionary;
+}
+
+- (NSString *)messageContentSetup: (RCMessageContent *)latestMessage objectName: (NSString *)objectName {
+    NSString *content = @"";
+    if ([objectName isEqualToString:@"RC:TxtMsg"]) {
+        content = ((RCTextMessage *)latestMessage).content;
+    }
+    return content;
+}
+
+- (NSString *)messageFromSetup: (RCConversation *)conversation {
+    NSString *from = @"";
+    switch (conversation.conversationType) {
+        case ConversationType_PRIVATE:
+            from = conversation.senderUserId;
+            break;
+        case ConversationType_SYSTEM:
+            from = @"系统消息助手";
+            break;
+        default:
+            break;
+    }
+    return from;
+}
+
+- (void)pushToConversationPage:(CDVInvokedUrlCommand *)command {
+    RCConversationType conversationType = [[command.arguments objectAtIndex: 0] intValue];
+    NSString *targetId = [command.arguments objectAtIndex: 1];
+    NSString *conversationTitle = [command.arguments objectAtIndex: 2];
+    ConversationViewController *conversationVC = [[ConversationViewController alloc] init];
+    conversationVC.conversationType = conversationType;
+    conversationVC.targetId = targetId;
+    conversationVC.title = conversationTitle;
+    
+    UINavigationController *mainVC = [[UINavigationController alloc] initWithRootViewController:conversationVC];
+    UIViewController *rootVC = [[UIApplication sharedApplication] keyWindow].rootViewController;
+    [rootVC presentViewController:mainVC animated:false completion:nil];
+    
+    CDVPluginResult *pluginResult = nil;
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"跳转会话界面成功"];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void)dataSync: (NSString *)userId {
@@ -244,9 +365,9 @@
  *  @param status 网络状态。
  */
 - (void)onRCIMConnectionStatusChanged:(RCConnectionStatus)status {
-    NSLog(@"+++++++%ld", status);
+    NSLog(@"onRCIMConnectionStatusChanged+++++++%ld", status);
     if (status == ConnectionStatus_Connected) {
-        [self connectSucces:self.userId];
+//        [self connectSucces:self.userId];
     }
 }
 
@@ -264,55 +385,58 @@
 }
 
 - (void)onRCIMReceiveMessage:(RCMessage *)message left:(int)left {
-    if ([message.content isMemberOfClass:[RCInformationNotificationMessage class]]) {
-        RCInformationNotificationMessage *msg = (RCInformationNotificationMessage *)message.content;
-        // NSString *str = [NSString stringWithFormat:@"%@",msg.message];
-        if ([msg.message rangeOfString:@"你已添加了"].location != NSNotFound) {
-            [RCDDataSource syncFriendList:[RCIM sharedRCIM].currentUserInfo.userId
-                                 complete:^(NSMutableArray *friends){
-                                 }];
-        }
-    } else if ([message.content isMemberOfClass:[RCContactNotificationMessage class]]) {
-        RCContactNotificationMessage *msg = (RCContactNotificationMessage *)message.content;
-        if ([msg.operation isEqualToString:ContactNotificationMessage_ContactOperationAcceptResponse]) {
-            [RCDDataSource syncFriendList:[RCIM sharedRCIM].currentUserInfo.userId
-                                 complete:^(NSMutableArray *friends){
-                                 }];
-        }
-    } else if ([message.content isMemberOfClass:[RCGroupNotificationMessage class]]) {
-        RCGroupNotificationMessage *msg = (RCGroupNotificationMessage *)message.content;
-        if ([msg.operation isEqualToString:@"Dismiss"] &&
-            [msg.operatorUserId isEqualToString:[RCIM sharedRCIM].currentUserInfo.userId]) {
-            [[RCIMClient sharedRCIMClient]clearRemoteHistoryMessages:ConversationType_GROUP
-                                                            targetId:message.targetId
-                                                          recordTime:message.sentTime
-                                                             success:^{
-                                                                 [[RCIMClient sharedRCIMClient] clearMessages:ConversationType_GROUP targetId:message.targetId];
-                                                             }
-                                                               error:nil
-             ];
-            [[RCIMClient sharedRCIMClient] removeConversation:ConversationType_GROUP targetId:message.targetId];
-        } else if ([msg.operation isEqualToString:@"Quit"] || [msg.operation isEqualToString:@"Add"] ||
-                   [msg.operation isEqualToString:@"Kicked"] || [msg.operation isEqualToString:@"Rename"]) {
-            if (![msg.operation isEqualToString:@"Rename"]) {
-                [RCDHTTPTOOL getGroupMembersWithGroupId:message.targetId
-                                                  Block:^(NSMutableArray *result) {
-                                                      [[RCDataBaseManager shareInstance]
-                                                       insertGroupMemberToDB:result
-                                                       groupId:message.targetId
-                                                       complete:^(BOOL results){
-                                                           
-                                                       }];
-                                                  }];
-            }
-            [RCDHTTPTOOL getGroupByID:message.targetId
-                    successCompletion:^(RCDGroupInfo *group) {
-                        [[RCDataBaseManager shareInstance] insertGroupToDB:group];
-                        [[RCIM sharedRCIM] refreshGroupInfoCache:group withGroupId:group.groupId];
-                        [[NSNotificationCenter defaultCenter] postNotificationName:@"UpdeteGroupInfo"
-                                                                            object:message.targetId];
-                    }];
-        }
-    }
+    NSLog(@"onRCIMReceiveMessage---------");
+    NSLog(@"%@", message);
+    NSLog(@"%d", left);
+//    if ([message.content isMemberOfClass:[RCInformationNotificationMessage class]]) {
+//        RCInformationNotificationMessage *msg = (RCInformationNotificationMessage *)message.content;
+//        // NSString *str = [NSString stringWithFormat:@"%@",msg.message];
+//        if ([msg.message rangeOfString:@"你已添加了"].location != NSNotFound) {
+//            [RCDDataSource syncFriendList:[RCIM sharedRCIM].currentUserInfo.userId
+//                                 complete:^(NSMutableArray *friends){
+//                                 }];
+//        }
+//    } else if ([message.content isMemberOfClass:[RCContactNotificationMessage class]]) {
+//        RCContactNotificationMessage *msg = (RCContactNotificationMessage *)message.content;
+//        if ([msg.operation isEqualToString:ContactNotificationMessage_ContactOperationAcceptResponse]) {
+//            [RCDDataSource syncFriendList:[RCIM sharedRCIM].currentUserInfo.userId
+//                                 complete:^(NSMutableArray *friends){
+//                                 }];
+//        }
+//    } else if ([message.content isMemberOfClass:[RCGroupNotificationMessage class]]) {
+//        RCGroupNotificationMessage *msg = (RCGroupNotificationMessage *)message.content;
+//        if ([msg.operation isEqualToString:@"Dismiss"] &&
+//            [msg.operatorUserId isEqualToString:[RCIM sharedRCIM].currentUserInfo.userId]) {
+//            [[RCIMClient sharedRCIMClient]clearRemoteHistoryMessages:ConversationType_GROUP
+//                                                            targetId:message.targetId
+//                                                          recordTime:message.sentTime
+//                                                             success:^{
+//                                                                 [[RCIMClient sharedRCIMClient] clearMessages:ConversationType_GROUP targetId:message.targetId];
+//                                                             }
+//                                                               error:nil
+//             ];
+//            [[RCIMClient sharedRCIMClient] removeConversation:ConversationType_GROUP targetId:message.targetId];
+//        } else if ([msg.operation isEqualToString:@"Quit"] || [msg.operation isEqualToString:@"Add"] ||
+//                   [msg.operation isEqualToString:@"Kicked"] || [msg.operation isEqualToString:@"Rename"]) {
+//            if (![msg.operation isEqualToString:@"Rename"]) {
+//                [RCDHTTPTOOL getGroupMembersWithGroupId:message.targetId
+//                                                  Block:^(NSMutableArray *result) {
+//                                                      [[RCDataBaseManager shareInstance]
+//                                                       insertGroupMemberToDB:result
+//                                                       groupId:message.targetId
+//                                                       complete:^(BOOL results){
+//
+//                                                       }];
+//                                                  }];
+//            }
+//            [RCDHTTPTOOL getGroupByID:message.targetId
+//                    successCompletion:^(RCDGroupInfo *group) {
+//                        [[RCDataBaseManager shareInstance] insertGroupToDB:group];
+//                        [[RCIM sharedRCIM] refreshGroupInfoCache:group withGroupId:group.groupId];
+//                        [[NSNotificationCenter defaultCenter] postNotificationName:@"UpdeteGroupInfo"
+//                                                                            object:message.targetId];
+//                    }];
+//        }
+//    }
 }
 @end

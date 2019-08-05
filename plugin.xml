@@ -20,10 +20,10 @@
         </dict>
     </config-file>
     <config-file parent="NSCameraUsageDescription" target="*-Info.plist">
-        <string>需要使用相机</string>
+        <string>需要使用相机用于聊天功能发送照片</string>
     </config-file>
     <config-file parent="NSMicrophoneUsageDescription" target="*-Info.plist">
-        <string>需要使用麦克风</string>
+        <string>需要使用麦克风用于聊天功能</string>
     </config-file>
 
 	<header-file src="src/ios/AFHttpTool.h"/>
@@ -113,5 +113,6 @@
     <pods-config ios-min-version="10.0" use-frameworks="false"/>    
     <pod name="AFNetworking" spec="~>3.0"/>
     <pod name="FMDB" spec="~>2.7.0"/>
+    <pod name="MJExtension" spec="~>3.0"/>
   </platform>
 </plugin>

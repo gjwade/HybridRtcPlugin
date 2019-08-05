@@ -1,3 +1,4 @@
+cordova.define("cordova-plugin-hybridrtc.HybridRtcPlugin", function(require, exports, module) {
 var exec = require('cordova/exec');
 var hybridRtc = function(){};  
 
@@ -9,8 +10,16 @@ hybridRtc.prototype.minus = function(arg0, success, error) {
     exec(success, error, "HybridRtcPlugin", "minus", [arg0]);
 };
 
+hybridRtc.prototype.initWithAppKey = function(arg0, success, error) {
+    exec(success, error, "HybridRtcPlugin", "initWithAppKey", arg0);
+};
+
 hybridRtc.prototype.connectWithToken = function(arg0, success, error) {
     exec(success, error, "HybridRtcPlugin", "connectWithToken", arg0);
+};
+
+hybridRtc.prototype.getConversationList = function(arg0, success, error) {
+    exec(success, error, "HybridRtcPlugin", "getConversationList", arg0);
 };
 
 hybridRtc.prototype.startCall = function(arg0, success, error) {
@@ -33,4 +42,10 @@ hybridRtc.prototype.groupChat = function(arg0, success, error) {
     exec(success, error, "HybridRtcPlugin", "groupChat", arg0);
 };
 
+hybridRtc.prototype.pushToConversationPage = function(arg0, success, error) {
+    exec(success, error, "HybridRtcPlugin", "pushToConversationPage", arg0);
+};
+
 module.exports = new hybridRtc();
+
+});
