@@ -1,4 +1,3 @@
-cordova.define("cordova-plugin-hybridrtc.HybridRtcPlugin", function(require, exports, module) {
 var exec = require('cordova/exec');
 var hybridRtc = function(){};  
 
@@ -47,5 +46,3 @@ hybridRtc.prototype.pushToConversationPage = function(arg0, success, error) {
 };
 
 module.exports = new hybridRtc();
-
-});
