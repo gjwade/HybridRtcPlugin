@@ -25,6 +25,18 @@
     <config-file parent="NSMicrophoneUsageDescription" target="*-Info.plist">
         <string>需要使用麦克风用于聊天功能</string>
     </config-file>
+    <config-file parent="NSLocationWhenInUseUsageDescription" target="*-Info.plist">
+        <string>需要使用您的位置用于聊天功能</string>
+    </config-file>
+    <config-file parent="NSLocationAlwaysUsageDescription" target="*-Info.plist">
+        <string>需要使用您的位置用于聊天功能</string>
+    </config-file>
+    <config-file parent="NSLocationAlwaysAndWhenInUseUsageDescription" target="*-Info.plist">
+        <string>需要使用您的位置用于聊天功能</string>
+    </config-file>
+    <config-file parent="NSPhotoLibraryAddUsageDescription" target="*-Info.plist">
+        <string>需要使用您的相册用于聊天功能发送照片</string>
+    </config-file>
 
 	<header-file src="src/ios/AFHttpTool.h"/>
     <source-file src="src/ios/AFHttpTool.m"/>
@@ -66,6 +78,7 @@
 
     <resource-file src="src/ios/RongYunStoryboard.storyboard"/>
     <resource-file src="src/ios/Emoji.plist"/>
+    <resource-file src="src/ios/userInfo.json"/>
     <resource-file src="src/ios/RCColor.plist"/>
     <resource-file src="src/ios/RongCloud.bundle"/>
     <resource-file src="src/ios/RongCloudKit.strings"/>

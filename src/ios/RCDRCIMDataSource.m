@@ -64,7 +64,8 @@
             }];
 }
 #pragma mark - RCIMUserInfoDataSource
-- (void)getUserInfoWithUserId:(NSString *)userId completion:(void (^)(RCUserInfo *))completion {
+- (void)getUserInfoWithUserId:(NSString *)userId completion:(void (
+                                                             ^)(RCUserInfo *))completion {
     NSLog(@"getUserInfoWithUserId ----- %@", userId);
     RCUserInfo *user = [RCUserInfo new];
     if (userId == nil || [userId length] == 0) {
@@ -75,19 +76,22 @@
         return;
     }
     //开发者调自己的服务器接口根据userID异步请求数据
-    if (![userId isEqualToString:[RCIM sharedRCIM].currentUserInfo.userId]) {
-        [[RCDUserInfoManager shareInstance] getFriendInfo:userId
-                                               completion:^(RCUserInfo *user) {
-                                                   completion(user);
-                                               }];
-    } else {
-        [[RCDUserInfoManager shareInstance] getUserInfo:userId
-                                             completion:^(RCUserInfo *user) {
-                                                 [[RCIM sharedRCIM] refreshUserInfoCache:user withUserId:user.userId];
-
-                                                 completion(user);
-                                             }];
-    }
+//    if (![userId isEqualToString:[RCIM sharedRCIM].currentUserInfo.userId]) {
+//        [[RCDUserInfoManager shareInstance] getFriendInfo:userId
+//                                               completion:^(RCUserInfo *user) {
+//                                                   completion(user);
+//                                               }];
+//    } else {
+//        [[RCDUserInfoManager shareInstance] getUserInfo:userId
+//                                             completion:^(RCUserInfo *user) {
+//                                                 [[RCIM sharedRCIM] refreshUserInfoCache:user withUserId:user.userId];
+//
+//                                                 completion(user);
+//                                             }];
+//    }
+    [[RCDUserInfoManager shareInstance] getUserInfo:userId completion:^(RCUserInfo *user) {
+        completion(user);
+    }];
     return;
 }
 
@@ -111,14 +115,19 @@
 }
 
 - (void)getAllMembersOfGroup:(NSString *)groupId result:(void (^)(NSArray *userIdList))resultBlock {
-    [[RCDHttpTool shareInstance] getGroupMembersWithGroupId:groupId
-                                                      Block:^(NSMutableArray *result) {
-                                                          NSMutableArray *ret = [[NSMutableArray alloc] init];
-                                                          for (RCUserInfo *user in result) {
-                                                              [ret addObject:user.userId];
-                                                          }
-                                                          resultBlock(ret);
-                                                      }];
+//    [[RCDHttpTool shareInstance] getGroupMembersWithGroupId:groupId
+//                                                      Block:^(NSMutableArray *result) {
+//                                                          NSMutableArray *ret = [[NSMutableArray alloc] init];
+//                                                          for (RCUserInfo *user in result) {
+//                                                              [ret addObject:user.userId];
+//                                                          }
+//                                                          resultBlock(ret);
+//                                                      }];
+    NSArray *userIds = @[@"0814DD20DA71454186A514DD8B6F0460",
+                         @"9531090493154c268c16eff48cbd8322",
+                         @"9DB6539C044A46EDB63029C29A36E379",
+                         @"A90D71E3DBE3494995ABB9729B23D1B6"];
+    resultBlock(userIds);
 }
 
 - (NSArray *)getAllUserInfo:(void (^)(void))completion {

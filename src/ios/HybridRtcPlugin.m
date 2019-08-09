@@ -91,6 +91,16 @@
     [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
+- (void)removeConversation:(CDVInvokedUrlCommand*)command {
+    RCConversationType conversationType = [[command.arguments objectAtIndex: 0] intValue];
+    NSString *targetId = [command.arguments objectAtIndex: 1];
+    [[RCIMClient sharedRCIMClient] removeConversation:conversationType targetId:targetId];
+    
+    CDVPluginResult *pluginResult = nil;
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"会话删除成功"];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
 //- (void)connectWithToken:(CDVInvokedUrlCommand *)command {
 //    //    NSString *appKey = [command.arguments objectAtIndex: 0];
 //    NSLog(@"----------%ld", [[RCIM sharedRCIM] getConnectionStatus]);
@@ -255,6 +265,7 @@
 //        }
 //        [resultList addObject:dict];
 //    }
+    
     NSLog(@"%@", resultList);
     return resultList;
 }
@@ -263,6 +274,8 @@
     NSMutableDictionary *dictionary = [[NSMutableDictionary alloc] init];
     [dictionary setValue: [NSNumber numberWithInteger:conversation.conversationType] forKey:@"conversationType"];
     [dictionary setValue:conversation.targetId forKey:@"targetId"];
+    NSString *targetName = [self targetNameSetup:conversation];
+    [dictionary setValue:targetName forKey:@"targetName"];
     [dictionary setValue:conversation.conversationTitle forKey:@"conversationTitle"];
     [dictionary setValue: [NSNumber numberWithInteger:conversation.unreadMessageCount] forKey:@"unreadMessageCount"];
     [dictionary setValue: [NSNumber numberWithInteger:conversation.isTop] forKey:@"isTop"];
@@ -280,8 +293,6 @@
     [dictionary setValue:[NSNumber numberWithInteger:conversation.hasUnreadMentioned] forKey:@"hasUnreadMentioned"];
     NSString *messageContent = [self messageContentSetup:conversation.lastestMessage objectName:conversation.objectName];
     [dictionary setValue:messageContent  forKey:@"messageContent"];
-    NSString *messageFrom = [self messageFromSetup:conversation];
-    [dictionary setValue:messageFrom forKey:@"messageFrom"];
     return dictionary;
 }
 
@@ -289,23 +300,45 @@
     NSString *content = @"";
     if ([objectName isEqualToString:@"RC:TxtMsg"]) {
         content = ((RCTextMessage *)latestMessage).content;
+    } else if ([objectName isEqualToString:@"RC:VcMsg"]) {
+        content = @"[语音消息]";
+    } else if ([objectName isEqualToString:@"RC:LBSMsg"]) {
+        content = @"[位置]";
+    } else if ([objectName isEqualToString:@"RC:ImgMsg"]) {
+        content = @"[图片]";
+    } else if ([objectName isEqualToString:@"RC:ImgTextMsg"]) {
+        content = @"[图文消息]";
+    } else if ([objectName isEqualToString:@"RC:InfoNtf"]) {
+        content = ((RCInformationNotificationMessage *)latestMessage).message;
+    } else if ([objectName isEqualToString:@"RC:VCSummary"]) {
+        RCCallSummaryMessage *callMessage = (RCCallSummaryMessage *)latestMessage;
+        RCCallMediaType mediaType = callMessage.mediaType;
+        if (mediaType == RCCallMediaAudio) {
+            content = @"[音频通话]";
+        } else {
+            content = @"[视频通话]";
+        }
     }
     return content;
 }
 
-- (NSString *)messageFromSetup: (RCConversation *)conversation {
-    NSString *from = @"";
+- (NSString *)targetNameSetup: (RCConversation *)conversation {
+    NSString *targetName = @"";
+    NSDictionary *userInfo = [self readLocalFileWithName:@"userInfo"];
     switch (conversation.conversationType) {
         case ConversationType_PRIVATE:
-            from = conversation.senderUserId;
+            targetName = userInfo[conversation.targetId][@"name"];
+            break;
+        case ConversationType_GROUP:
+            targetName = @"群聊";
             break;
         case ConversationType_SYSTEM:
-            from = @"系统消息助手";
+            targetName = @"系统消息助手";
             break;
         default:
             break;
     }
-    return from;
+    return targetName;
 }
 
 - (void)pushToConversationPage:(CDVInvokedUrlCommand *)command {
@@ -317,13 +350,30 @@
     conversationVC.targetId = targetId;
     conversationVC.title = conversationTitle;
     
+    if (command.arguments.count == 4) {
+        NSInteger latestMessageId = [[command.arguments objectAtIndex: 3] intValue];
+        [[RCIMClient sharedRCIMClient] setMessageReceivedStatus:latestMessageId receivedStatus:ReceivedStatus_READ];
+        conversationVC.block = ^{
+            CDVPluginResult *pluginResult = nil;
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"会话界面消失"];
+            [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        };
+    }
+    if (conversationType == ConversationType_GROUP) {
+        RCGroup *groupInfo = [RCGroup new];
+        groupInfo.portraitUri = @"";
+        groupInfo.groupId = targetId;
+        groupInfo.groupName = conversationTitle;
+        [[RCIM sharedRCIM] refreshGroupInfoCache:groupInfo withGroupId:targetId];
+    }
+    
     UINavigationController *mainVC = [[UINavigationController alloc] initWithRootViewController:conversationVC];
     UIViewController *rootVC = [[UIApplication sharedApplication] keyWindow].rootViewController;
     [rootVC presentViewController:mainVC animated:false completion:nil];
     
-    CDVPluginResult *pluginResult = nil;
-    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"跳转会话界面成功"];
-    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+//    CDVPluginResult *pluginResult = nil;
+//    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"跳转会话界面成功"];
+//    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void)dataSync: (NSString *)userId {
@@ -382,6 +432,17 @@
         return YES;
     }
     return NO;
+}
+
+- (NSDictionary *)readLocalFileWithName:(NSString *)name {
+    // 获取文件路径
+    NSString *path = [[NSBundle mainBundle] pathForResource:name ofType:@"json"];
+    // 将文件数据化
+    NSData *data = [[NSData alloc] initWithContentsOfFile:path];
+    
+    return [NSJSONSerialization JSONObjectWithData:data
+                                           options:kNilOptions
+                                             error:nil];
 }
 
 - (void)onRCIMReceiveMessage:(RCMessage *)message left:(int)left {

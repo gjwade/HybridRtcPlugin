@@ -14,6 +14,7 @@
 - (void)initWithAppKey:(CDVInvokedUrlCommand*)command;
 - (void)connectWithToken:(CDVInvokedUrlCommand*)command;
 - (void)getConversationList:(CDVInvokedUrlCommand*)command;
+- (void)removeConversation:(CDVInvokedUrlCommand*)command;
 - (void)startCall:(CDVInvokedUrlCommand*)command;
 - (void)accept:(CDVInvokedUrlCommand*)command;
 - (void)hangup:(CDVInvokedUrlCommand*)command;

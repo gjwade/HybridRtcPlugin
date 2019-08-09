@@ -26,45 +26,70 @@
 
 //通过自己的userId获取自己的用户信息
 - (void)getUserInfo:(NSString *)userId completion:(void (^)(RCUserInfo *))completion {
-    [RCDHTTPTOOL getUserInfoByUserID:userId
-                          completion:^(RCUserInfo *user) {
-                              if (user) {
-                                  completion(user);
-                                  return;
-                              } else {
-                                  user = [[RCDataBaseManager shareInstance] getUserByUserId:userId];
-                                  if (user == nil) {
-                                      user = [self generateDefaultUserInfo:userId];
-                                      completion(user);
-                                      return;
-                                  }
-                              }
-                          }];
+//    [RCDHTTPTOOL getUserInfoByUserID:userId
+//                          completion:^(RCUserInfo *user) {
+//                              if (user) {
+//                                  completion(user);
+//                                  return;
+//                              } else {
+//                                  user = [[RCDataBaseManager shareInstance] getUserByUserId:userId];
+//                                  if (user == nil) {
+//                                      user = [self generateDefaultUserInfo:userId];
+//                                      completion(user);
+//                                      return;
+//                                  }
+//                              }
+//                          }];
+    NSDictionary *userInfo = [self readLocalFileWithName:@"userInfo"];
+    NSLog(@"%@", userInfo);
+    RCUserInfo *user = [RCUserInfo new];
+    user.userId = userId;
+    user.name = userInfo[userId][@"name"];
+    user.portraitUri = @"";
+    completion(user);
 }
 //通过好友详细信息或好友Id获取好友信息
 - (void)getFriendInfo:(NSString *)friendId completion:(void (^)(RCUserInfo *))completion {
-    __block RCUserInfo *resultInfo;
-    [RCDHTTPTOOL getFriendDetailsWithFriendId:friendId
-        success:^(RCDUserInfo *user) {
-            resultInfo = [self getRCUserInfoByRCDUserInfo:user];
-            completion(resultInfo);
-            return;
-        }
-        failure:^(NSError *err) {
-            RCDUserInfo *friendInfo = [[RCDataBaseManager shareInstance] getFriendInfo:friendId];
-            if (friendInfo != nil) {
-                resultInfo = [self getRCUserInfoByRCDUserInfo:friendInfo];
-                completion(resultInfo);
-                return;
-            } else {
-                [self getUserInfo:friendId
-                       completion:^(RCUserInfo *user) {
-                           resultInfo = user;
-                           completion(resultInfo);
-                           return;
-                       }];
-            }
-        }];
+    NSDictionary *userInfo = [self readLocalFileWithName:@"userInfo"];
+    NSLog(@"%@", userInfo);
+    RCUserInfo *user = [RCUserInfo new];
+    user.userId = friendId;
+    user.name = userInfo[friendId][@"name"];
+    user.portraitUri = @"";
+    completion(user);
+//    __block RCUserInfo *resultInfo;
+//    [RCDHTTPTOOL getFriendDetailsWithFriendId:friendId
+//        success:^(RCDUserInfo *user) {
+//            resultInfo = [self getRCUserInfoByRCDUserInfo:user];
+//            completion(resultInfo);
+//            return;
+//        }
+//        failure:^(NSError *err) {
+//            RCDUserInfo *friendInfo = [[RCDataBaseManager shareInstance] getFriendInfo:friendId];
+//            if (friendInfo != nil) {
+//                resultInfo = [self getRCUserInfoByRCDUserInfo:friendInfo];
+//                completion(resultInfo);
+//                return;
+//            } else {
+//                [self getUserInfo:friendId
+//                       completion:^(RCUserInfo *user) {
+//                           resultInfo = user;
+//                           completion(resultInfo);
+//                           return;
+//                       }];
+//            }
+//        }];
+}
+
+- (NSDictionary *)readLocalFileWithName:(NSString *)name {
+    // 获取文件路径
+    NSString *path = [[NSBundle mainBundle] pathForResource:name ofType:@"json"];
+    // 将文件数据化
+    NSData *data = [[NSData alloc] initWithContentsOfFile:path];
+    
+    return [NSJSONSerialization JSONObjectWithData:data
+                                           options:kNilOptions
+                                             error:nil];
 }
 
 - (RCUserInfo *)getFriendInfoFromDB:(NSString *)friendId {

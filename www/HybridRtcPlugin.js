@@ -21,6 +21,10 @@ hybridRtc.prototype.getConversationList = function(arg0, success, error) {
     exec(success, error, "HybridRtcPlugin", "getConversationList", arg0);
 };
 
+hybridRtc.prototype.removeConversation = function(arg0, success, error) {
+    exec(success, error, "HybridRtcPlugin", "removeConversation", arg0);
+};
+
 hybridRtc.prototype.startCall = function(arg0, success, error) {
     exec(success, error, "HybridRtcPlugin", "startCall", arg0);
 };
