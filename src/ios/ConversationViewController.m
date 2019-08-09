@@ -70,4 +70,7 @@
     NSLog(@"groupSettingButtonClick");
 }
 
+-(void)notifyUpdateUnreadMessageCount {
+    return;
+}
 @end

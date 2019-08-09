@@ -13,9 +13,12 @@
 #import <MJExtension.h>
 #import "ConversationViewController.h"
 
+typedef void(^MessageReceivedBlock)(void);
+
 @interface HybridRtcPlugin()<RCCallSessionDelegate, RCIMConnectionStatusDelegate, RCIMReceiveMessageDelegate, RCIMUserInfoDataSource, RCIMGroupMemberDataSource>
 
 @property(nonatomic, strong) NSString *userId;
+@property(nonatomic, copy) MessageReceivedBlock messageReceivedBlock;
 
 @end
 
@@ -83,6 +86,20 @@
     }];
 }
 
+- (void)addMessageReceivedListener:(CDVInvokedUrlCommand *)command {
+    __weak __typeof(self) weakSelf = self;
+    self.messageReceivedBlock = ^{
+        CDVPluginResult *pluginResult = nil;
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"接收到消息了"];
+        [pluginResult setKeepCallbackAsBool:YES];
+        [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    };
+//    __block CDVPluginResult *pluginResult = nil;
+//    __weak __typeof(self) weakSelf = self;
+//    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:chatList];
+//    [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
 - (void)getConversationList:(CDVInvokedUrlCommand *)command {
     __block CDVPluginResult *pluginResult = nil;
     __weak __typeof(self) weakSelf = self;
@@ -94,6 +111,7 @@
 - (void)removeConversation:(CDVInvokedUrlCommand*)command {
     RCConversationType conversationType = [[command.arguments objectAtIndex: 0] intValue];
     NSString *targetId = [command.arguments objectAtIndex: 1];
+    [[RCIMClient sharedRCIMClient] clearMessages:conversationType targetId:targetId];
     [[RCIMClient sharedRCIMClient] removeConversation:conversationType targetId:targetId];
     
     CDVPluginResult *pluginResult = nil;
@@ -327,7 +345,7 @@
     NSDictionary *userInfo = [self readLocalFileWithName:@"userInfo"];
     switch (conversation.conversationType) {
         case ConversationType_PRIVATE:
-            targetName = userInfo[conversation.targetId][@"name"];
+            targetName = userInfo[conversation.targetId];
             break;
         case ConversationType_GROUP:
             targetName = @"群聊";
@@ -351,8 +369,8 @@
     conversationVC.title = conversationTitle;
     
     if (command.arguments.count == 4) {
-        NSInteger latestMessageId = [[command.arguments objectAtIndex: 3] intValue];
-        [[RCIMClient sharedRCIMClient] setMessageReceivedStatus:latestMessageId receivedStatus:ReceivedStatus_READ];
+//        NSInteger latestMessageId = [[command.arguments objectAtIndex: 3] intValue];
+//        [[RCIMClient sharedRCIMClient] setMessageReceivedStatus:latestMessageId receivedStatus:ReceivedStatus_READ];
         conversationVC.block = ^{
             CDVPluginResult *pluginResult = nil;
             pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"会话界面消失"];
@@ -449,6 +467,9 @@
     NSLog(@"onRCIMReceiveMessage---------");
     NSLog(@"%@", message);
     NSLog(@"%d", left);
+    if (self.messageReceivedBlock) {
+        self.messageReceivedBlock();
+    }
 //    if ([message.content isMemberOfClass:[RCInformationNotificationMessage class]]) {
 //        RCInformationNotificationMessage *msg = (RCInformationNotificationMessage *)message.content;
 //        // NSString *str = [NSString stringWithFormat:@"%@",msg.message];

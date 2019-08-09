@@ -40,13 +40,19 @@
 //                                  }
 //                              }
 //                          }];
+    
+    
     NSDictionary *userInfo = [self readLocalFileWithName:@"userInfo"];
     NSLog(@"%@", userInfo);
-    RCUserInfo *user = [RCUserInfo new];
-    user.userId = userId;
-    user.name = userInfo[userId][@"name"];
-    user.portraitUri = @"";
-    completion(user);
+//    NSString *userName = [[NSUserDefaults standardUserDefaults] valueForKey:userId];
+//    NSLog(@"%@", userName);
+    if (userInfo[userId]) {
+        RCUserInfo *user = [RCUserInfo new];
+        user.userId = userId;
+        user.name = userInfo[userId];
+        user.portraitUri = @"";
+        completion(user);
+    }
 }
 //通过好友详细信息或好友Id获取好友信息
 - (void)getFriendInfo:(NSString *)friendId completion:(void (^)(RCUserInfo *))completion {
@@ -54,7 +60,7 @@
     NSLog(@"%@", userInfo);
     RCUserInfo *user = [RCUserInfo new];
     user.userId = friendId;
-    user.name = userInfo[friendId][@"name"];
+    user.name = userInfo[friendId];
     user.portraitUri = @"";
     completion(user);
 //    __block RCUserInfo *resultInfo;
