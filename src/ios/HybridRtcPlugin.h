@@ -16,6 +16,7 @@
 - (void)addMessageReceivedListener:(CDVInvokedUrlCommand *)command;
 - (void)getConversationList:(CDVInvokedUrlCommand*)command;
 - (void)removeConversation:(CDVInvokedUrlCommand*)command;
+- (void)disconnect:(CDVInvokedUrlCommand*)command;
 - (void)startCall:(CDVInvokedUrlCommand*)command;
 - (void)accept:(CDVInvokedUrlCommand*)command;
 - (void)hangup:(CDVInvokedUrlCommand*)command;

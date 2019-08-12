@@ -69,13 +69,15 @@ typedef void(^MessageReceivedBlock)(void);
     __block CDVPluginResult *pluginResult = nil;
     __weak __typeof(self) weakSelf = self;
 //    NSString *appKey = [command.arguments objectAtIndex: 0];
-    NSString *appKey = @"mgb7ka1nmd1vg";
-    [[RCIM sharedRCIM] initWithAppKey:appKey];
-    [self initialSetup];
+    NSLog(@"%ld", [[RCIM sharedRCIM] getConnectionStatus]);
+    if ([[RCIM sharedRCIM] getConnectionStatus] == ConnectionStatus_Unconnected) {
+        [[RCIM sharedRCIM] initWithAppKey:@"mgb7ka1nmd1vg"];
+        [self initialSetup];
+    }
     NSString *token = [command.arguments objectAtIndex: 0];
     [[RCIM sharedRCIM] connectWithToken:token success:^(NSString *userId) {
-//        NSArray *chatList = [self conversationListAccept];
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:@[]];
+        NSArray *chatList = [self conversationListAccept];
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray: chatList];
         [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } error:^(RCConnectErrorCode status) {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsInt:status];
@@ -88,6 +90,7 @@ typedef void(^MessageReceivedBlock)(void);
 
 - (void)addMessageReceivedListener:(CDVInvokedUrlCommand *)command {
     __weak __typeof(self) weakSelf = self;
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refreshChatList:) name:@"refreshChatList" object:nil];
     self.messageReceivedBlock = ^{
         CDVPluginResult *pluginResult = nil;
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"接收到消息了"];
@@ -98,6 +101,12 @@ typedef void(^MessageReceivedBlock)(void);
 //    __weak __typeof(self) weakSelf = self;
 //    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:chatList];
 //    [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
+
+- (void)refreshChatList: (NSNotification *)notification {
+    if (self.messageReceivedBlock) {
+        self.messageReceivedBlock();
+    }
 }
 
 - (void)getConversationList:(CDVInvokedUrlCommand *)command {
@@ -416,6 +425,12 @@ typedef void(^MessageReceivedBlock)(void);
     }];
 }
 
+- (void)disconnect:(CDVInvokedUrlCommand*)command {
+    [[RCIM sharedRCIM] disconnect:false];
+    CDVPluginResult *pluginResult = nil;
+    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"断开连接成功"];
+    [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+}
 #pragma mark RCIMUserInfoDataSource
 
 - (void)getUserInfoWithUserId:(NSString *)userId completion:(void (^)(RCUserInfo *))completion {

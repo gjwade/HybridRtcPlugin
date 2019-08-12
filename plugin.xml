@@ -54,6 +54,8 @@
     <source-file src="src/ios/ConversationViewController.m"/>
     <header-file src="src/ios/FriendCell.h"/>
     <source-file src="src/ios/FriendCell.m"/>
+    <header-file src="src/ios/GroupSettingViewController.h"/>
+    <source-file src="src/ios/GroupSettingViewController.m"/>
     <header-file src="src/ios/HybridRtcPlugin.h"/>
     <source-file src="src/ios/HybridRtcPlugin.m"/>
     <header-file src="src/ios/RCDataBaseManager.h"/>
@@ -75,6 +77,8 @@
     <source-file src="src/ios/RongYunMainVC.m"/>
     <header-file src="src/ios/RYMainViewController.h"/>
     <source-file src="src/ios/RYMainViewController.m"/>
+    <header-file src="src/ios/UpdateNameViewController.h"/>
+    <source-file src="src/ios/UpdateNameViewController.m"/>
 
     <resource-file src="src/ios/RongYunStoryboard.storyboard"/>
     <resource-file src="src/ios/Emoji.plist"/>
@@ -86,6 +90,9 @@
     <resource-file src="src/ios/user_male@3x.png"/>
     <resource-file src="src/ios/select.png"/>
     <resource-file src="src/ios/unselect.png"/>
+    <resource-file src="src/ios/icon_link@3x.png"/>
+    <resource-file src="src/ios/x_group avatar_icon@3x.png"/>
+    <resource-file src="src/ios/x_plus_icon@3x.png"/>
 
     <source-file src="src/ios/libopencore-amrnb.a" target-dir="lib" framework="true" />
     <source-file src="src/ios/libopencore-amrwb.a" target-dir="lib" framework="true" />

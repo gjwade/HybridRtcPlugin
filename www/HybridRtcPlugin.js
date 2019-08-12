@@ -29,6 +29,10 @@ hybridRtc.prototype.removeConversation = function(arg0, success, error) {
     exec(success, error, "HybridRtcPlugin", "removeConversation", arg0);
 };
 
+hybridRtc.prototype.disconnect = function(arg0, success, error) {
+    exec(success, error, "HybridRtcPlugin", "disconnect", arg0);
+};
+
 hybridRtc.prototype.startCall = function(arg0, success, error) {
     exec(success, error, "HybridRtcPlugin", "startCall", arg0);
 };
