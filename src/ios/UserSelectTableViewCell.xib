@@ -32,7 +32,7 @@
                         <color key="textColor" red="0.10196078431372549" green="0.10196078431372549" blue="0.10196078431372549" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <nil key="highlightedColor"/>
                     </label>
-                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="radio_off.png" translatesAutoresizingMaskIntoConstraints="NO" id="V47-D2-83s">
+                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="unselect.png" translatesAutoresizingMaskIntoConstraints="NO" id="V47-D2-83s">
                         <rect key="frame" x="343" y="21" width="16" height="16"/>
                         <constraints>
                             <constraint firstAttribute="width" constant="16" id="Lc0-JL-l5y"/>
@@ -61,6 +61,6 @@
     </objects>
     <resources>
         <image name="icon_user.png" width="36" height="36"/>
-        <image name="radio_off.png" width="64" height="64"/>
+        <image name="unselect.png" width="44" height="44"/>
     </resources>
 </document>

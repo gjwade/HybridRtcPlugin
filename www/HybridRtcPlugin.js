@@ -17,6 +17,10 @@ hybridRtc.prototype.connectWithToken = function(arg0, success, error) {
     exec(success, error, "HybridRtcPlugin", "connectWithToken", arg0);
 };
 
+hybridRtc.prototype.addGlobalListener = function(arg0, success, error) {
+    exec(success, error, "HybridRtcPlugin", "addGlobalListener", arg0);
+};
+
 hybridRtc.prototype.addMessageReceivedListener = function(arg0, success, error) {
     exec(success, error, "HybridRtcPlugin", "addMessageReceivedListener", arg0);
 };

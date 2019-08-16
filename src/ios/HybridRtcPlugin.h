@@ -13,6 +13,7 @@
 
 - (void)initWithAppKey:(CDVInvokedUrlCommand*)command;
 - (void)connectWithToken:(CDVInvokedUrlCommand*)command;
+- (void)addGlobalListener:(CDVInvokedUrlCommand *)command;
 - (void)addMessageReceivedListener:(CDVInvokedUrlCommand *)command;
 - (void)getConversationList:(CDVInvokedUrlCommand*)command;
 - (void)removeConversation:(CDVInvokedUrlCommand*)command;

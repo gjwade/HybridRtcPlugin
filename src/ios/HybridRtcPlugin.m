@@ -14,11 +14,13 @@
 #import "ConversationViewController.h"
 
 typedef void(^MessageReceivedBlock)(void);
+typedef void(^MessageGlobalBlock)(void);
 
 @interface HybridRtcPlugin()<RCCallSessionDelegate, RCIMConnectionStatusDelegate, RCIMReceiveMessageDelegate, RCIMUserInfoDataSource, RCIMGroupMemberDataSource>
 
 @property(nonatomic, strong) NSString *userId;
 @property(nonatomic, copy) MessageReceivedBlock messageReceivedBlock;
+@property(nonatomic, copy) MessageGlobalBlock messageGlobalBlock;
 
 @end
 
@@ -89,6 +91,16 @@ typedef void(^MessageReceivedBlock)(void);
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"融云token不正确"];
         [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
+}
+
+- (void)addGlobalListener:(CDVInvokedUrlCommand *)command {
+    __weak __typeof(self) weakSelf = self;
+    self.messageGlobalBlock = ^{
+        CDVPluginResult *pluginResult = nil;
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"接收到全局消息了"];
+        [pluginResult setKeepCallbackAsBool:YES];
+        [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    };
 }
 
 - (void)addMessageReceivedListener:(CDVInvokedUrlCommand *)command {
@@ -485,8 +497,11 @@ typedef void(^MessageReceivedBlock)(void);
     NSLog(@"onRCIMReceiveMessage---------");
     NSLog(@"%@", message);
     NSLog(@"%d", left);
+    
     if (self.messageReceivedBlock) {
         self.messageReceivedBlock();
+    } else if (self.messageGlobalBlock){
+        self.messageGlobalBlock();
     }
 //    if ([message.content isMemberOfClass:[RCInformationNotificationMessage class]]) {
 //        RCInformationNotificationMessage *msg = (RCInformationNotificationMessage *)message.content;

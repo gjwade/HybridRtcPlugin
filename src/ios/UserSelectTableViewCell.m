@@ -32,9 +32,9 @@
     _model = model;
     self.nameLabel.text = model.name;
     if (model.selected) {
-        self.checkImageView.image = [UIImage imageNamed:@"radio_checked"];
+        self.checkImageView.image = [UIImage imageNamed:@"select"];
     } else {
-        self.checkImageView.image = [UIImage imageNamed:@"radio_off"];
+        self.checkImageView.image = [UIImage imageNamed:@"unselect"];
     }
     if (model.disabled) {
         self.backView.backgroundColor = [UIColor colorWithRed:244/255.0 green:244/255.0 blue:244/255.0 alpha:1.0];
