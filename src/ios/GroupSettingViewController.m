@@ -8,10 +8,23 @@
 #import "GroupSettingViewController.h"
 #import "UpdateNameViewController.h"
 #import <RongIMKit/RongIMKit.h>
+#import "GroupMemberCell.h"
+#import "GroupMemberModel.h"
+#import "UserSelectViewController.h"
+#import "UserModel.h"
+#import "UserRemoveViewController.h"
 
-@interface GroupSettingViewController ()<UpdateNameViewControllerDelegate>
+@interface GroupSettingViewController ()<UpdateNameViewControllerDelegate, UICollectionViewDelegate, UICollectionViewDataSource, UserSelectViewControllerDelegate, UserRemoveViewControllerDelegate>
+
+@property(nonatomic, strong)NSArray *dataSource;
+@property(nonatomic, strong)NSArray *groupMemberList;
+@property(nonatomic, strong)GroupMemberModel *addModel;
+@property(nonatomic, strong)GroupMemberModel *deleteModel;
+
 @property (weak, nonatomic) IBOutlet UILabel *groupNameTitleLabel;
 @property (weak, nonatomic) IBOutlet UILabel *groupNameLabel;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *collectionViewHeightConstraint;
+@property (weak, nonatomic) IBOutlet UICollectionView *collectionView;
 
 @end
 
@@ -20,6 +33,18 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self initialSetup];
+    [self dataSourceInfoLoad];
+}
+
+-(void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    [self.view setNeedsLayout];
+    [self.view layoutIfNeeded];
+}
+
+-(void)viewDidLayoutSubviews {
+    [super viewDidLayoutSubviews];
+    self.collectionViewHeightConstraint.constant = self.collectionView.collectionViewLayout.collectionViewContentSize.height + 10;
 }
 
 - (void)initialSetup {
@@ -27,6 +52,15 @@
     self.navigationController.navigationBar.tintColor = [UIColor whiteColor];
     self.groupNameTitleLabel.text = self.groupName;
     self.groupNameLabel.text = self.groupName;
+}
+
+- (void)dataSourceInfoLoad {
+    NSMutableArray *tempDataSource = [NSMutableArray array];
+    self.addModel = [GroupMemberModel groupMemberModelWithUser:nil type:GroupMemberAdd];
+    self.deleteModel = [GroupMemberModel groupMemberModelWithUser:nil type:GroupMemberDelete];
+    [tempDataSource addObject:self.addModel];
+    [tempDataSource addObject:self.deleteModel];
+    self.dataSource = [tempDataSource copy];
 }
 
 - (void)actionSheetShowWithTitle: (NSString *)title message: (NSString *)message handler:(void(^)(UIAlertAction *))action {
@@ -105,6 +139,82 @@
     self.groupName = groupName;
     self.groupNameTitleLabel.text = groupName;
     self.groupNameLabel.text = groupName;
+}
+
+#pragma mark -UICollectionViewDataSource
+
+- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
+    return 1;
+}
+
+- (NSInteger)collectionView:(nonnull UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+    return self.dataSource.count;
+}
+
+- (nonnull __kindof UICollectionViewCell *)collectionView:(nonnull UICollectionView *)collectionView cellForItemAtIndexPath:(nonnull NSIndexPath *)indexPath {
+    GroupMemberCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"GroupMemberCellIdentifier" forIndexPath:indexPath];
+    GroupMemberModel *model = self.dataSource[indexPath.row];
+    cell.model = model;
+    return cell;
+}
+
+#pragma mark -UICollectionViewDelegate
+
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    GroupMemberModel *model = self.dataSource[indexPath.row];
+    if (model.type == GroupMemberUser) {
+        return;
+    }
+    if (model.type == GroupMemberAdd) {
+        UIStoryboard *rongyunSb = [UIStoryboard storyboardWithName:@"RongYunStoryboard" bundle:nil];
+        UserSelectViewController *userSelectVC = (UserSelectViewController *)[rongyunSb instantiateViewControllerWithIdentifier:@"UserSelectViewController"];
+        userSelectVC.disabledUserList = [self.groupMemberList valueForKey:@"user"];
+        userSelectVC.delegate = self;
+        [self.navigationController pushViewController:userSelectVC animated:true];
+        return;
+    }
+    if (model.type == GroupMemberDelete) {
+        UIStoryboard *rongyunSb = [UIStoryboard storyboardWithName:@"RongYunStoryboard" bundle:nil];
+        UserRemoveViewController *userRemoveVC = (UserRemoveViewController *)[rongyunSb instantiateViewControllerWithIdentifier:@"UserRemoveViewController"];
+        userRemoveVC.userList = [self.groupMemberList valueForKey:@"user"];
+        userRemoveVC.delegate = self;
+        [self.navigationController pushViewController:userRemoveVC animated:true];
+    }
+}
+
+#pragma mark -UserSelectViewControllerDelegate
+
+-(void)userSelectViewController:(UserSelectViewController *)viewController confirmButtonDidClick:(NSArray *)selectedUsers {
+    NSMutableArray *tempDataSource = [NSMutableArray array];
+    NSMutableArray *tempGroupMemberList = [NSMutableArray arrayWithArray:self.groupMemberList];
+    for (UserModel *user in selectedUsers) {
+        GroupMemberModel *model = [GroupMemberModel groupMemberModelWithUser:user type:GroupMemberUser];
+        [tempGroupMemberList addObject:model];
+    }
+    [tempDataSource addObjectsFromArray:tempGroupMemberList];
+    [tempDataSource addObject:self.addModel];
+    [tempDataSource addObject:self.deleteModel];
+    self.dataSource = tempDataSource;
+    self.groupMemberList = tempGroupMemberList;
+    [self.collectionView reloadData];
+}
+
+#pragma mark -UserRemoveViewControllerDelegate
+
+-(void)userRemoveViewController:(UserRemoveViewController *)viewController confirmButtonDidClick:(NSArray *)removedUserList {
+    NSMutableArray *tempDataSource = [NSMutableArray array];
+    NSMutableArray *tempGroupMemberList = [NSMutableArray arrayWithArray:self.groupMemberList];
+    for (UserModel *user in removedUserList) {
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"user.userId = %@", user.userId];
+        NSArray *filtedArray = [tempGroupMemberList filteredArrayUsingPredicate:predicate];
+        [tempGroupMemberList removeObject:filtedArray.firstObject];
+    }
+    [tempDataSource addObjectsFromArray:tempGroupMemberList];
+    [tempDataSource addObject:self.addModel];
+    [tempDataSource addObject:self.deleteModel];
+    self.dataSource = tempDataSource;
+    self.groupMemberList = tempGroupMemberList;
+    [self.collectionView reloadData];
 }
 
 #pragma mark -IBAction methods

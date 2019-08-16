@@ -54,8 +54,34 @@
     <source-file src="src/ios/ConversationViewController.m"/>
     <header-file src="src/ios/FriendCell.h"/>
     <source-file src="src/ios/FriendCell.m"/>
+    <header-file src="src/ios/GroupMemberCell.h"/>
+    <source-file src="src/ios/GroupMemberCell.m"/>
+    <header-file src="src/ios/GroupMemberModel.h"/>
+    <source-file src="src/ios/GroupMemberModel.m"/>
     <header-file src="src/ios/GroupSettingViewController.h"/>
     <source-file src="src/ios/GroupSettingViewController.m"/>
+    <header-file src="src/ios/OrganizationCollectionModel.h"/>
+    <source-file src="src/ios/OrganizationCollectionModel.m"/>
+    <header-file src="src/ios/OrganizationCollectionViewCell.h"/>
+    <source-file src="src/ios/OrganizationCollectionViewCell.m"/>
+    <header-file src="src/ios/OrganizationModel.h"/>
+    <source-file src="src/ios/OrganizationModel.m"/>
+    <header-file src="src/ios/OrgnizationSelectTableViewCell.h"/>
+    <source-file src="src/ios/OrgnizationSelectTableViewCell.m"/>
+    <header-file src="src/ios/UserModel.h"/>
+    <source-file src="src/ios/UserModel.m"/>
+    <header-file src="src/ios/UserRemoveViewController.h"/>
+    <source-file src="src/ios/UserRemoveViewController.m"/>
+    <header-file src="src/ios/UserSelectedCollectionView.h"/>
+    <source-file src="src/ios/UserSelectedCollectionView.m"/>
+    <header-file src="src/ios/UserSelectedCollectionViewCell.h"/>
+    <source-file src="src/ios/UserSelectedCollectionViewCell.m"/>
+    <header-file src="src/ios/UserSelectTableView.h"/>
+    <source-file src="src/ios/UserSelectTableView.m"/>
+    <header-file src="src/ios/UserSelectTableViewCell.h"/>
+    <source-file src="src/ios/UserSelectTableViewCell.m"/>
+    <header-file src="src/ios/UserSelectViewController.h"/>
+    <source-file src="src/ios/UserSelectViewController.m"/>
     <header-file src="src/ios/HybridRtcPlugin.h"/>
     <source-file src="src/ios/HybridRtcPlugin.m"/>
     <header-file src="src/ios/RCDataBaseManager.h"/>
@@ -81,6 +107,9 @@
     <source-file src="src/ios/UpdateNameViewController.m"/>
 
     <resource-file src="src/ios/RongYunStoryboard.storyboard"/>
+    <resource-file src="src/ios/OrgnizationSelectTableViewCell.xib"/>
+    <resource-file src="src/ios/UserSelectedCollectionViewCell.xib"/>
+    <resource-file src="src/ios/UserSelectTableViewCell.xib"/>
     <resource-file src="src/ios/Emoji.plist"/>
     <resource-file src="src/ios/userInfo.json"/>
     <resource-file src="src/ios/RCColor.plist"/>
@@ -93,6 +122,11 @@
     <resource-file src="src/ios/icon_link@3x.png"/>
     <resource-file src="src/ios/x_group avatar_icon@3x.png"/>
     <resource-file src="src/ios/x_plus_icon@3x.png"/>
+    <resource-file src="src/ios/icon_del@3x.png"/>
+    <resource-file src="src/ios/outline.png"/>
+    <resource-file src="src/ios/radio_checked.png"/>
+    <resource-file src="src/ios/radio_off.png"/>
+    <resource-file src="src/ios/setting.png"/>
 
     <source-file src="src/ios/libopencore-amrnb.a" target-dir="lib" framework="true" />
     <source-file src="src/ios/libopencore-amrwb.a" target-dir="lib" framework="true" />

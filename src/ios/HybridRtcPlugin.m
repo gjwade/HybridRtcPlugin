@@ -74,8 +74,11 @@ typedef void(^MessageReceivedBlock)(void);
         [[RCIM sharedRCIM] initWithAppKey:@"mgb7ka1nmd1vg"];
         [self initialSetup];
     }
-    NSString *token = [command.arguments objectAtIndex: 0];
-    [[RCIM sharedRCIM] connectWithToken:token success:^(NSString *userId) {
+    NSString *rongYunToken = [command.arguments objectAtIndex: 0];
+    NSString *token = [command.arguments objectAtIndex: 1];
+    [[NSUserDefaults standardUserDefaults] setValue:token forKey:@"token"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    [[RCIM sharedRCIM] connectWithToken:rongYunToken success:^(NSString *userId) {
         NSArray *chatList = [self conversationListAccept];
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray: chatList];
         [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -83,7 +86,7 @@ typedef void(^MessageReceivedBlock)(void);
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsInt:status];
         [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } tokenIncorrect:^{
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"token不正确"];
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"融云token不正确"];
         [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
 }
@@ -233,26 +236,26 @@ typedef void(^MessageReceivedBlock)(void);
     __weak __typeof(self) weakSelf = self;
     NSString *userName = [command.arguments objectAtIndex: 0];
     NSString *password = [command.arguments objectAtIndex: 1];
-    [AFHttpTool loginWithPhone:userName password:password region:@"86" success:^(id response) {
-        NSLog(@"%@", response);
-        NSString *token = response[@"result"][@"token"];
-        NSString *userId = response[@"result"][@"id"];
-        weakSelf.userId = userId;
-        [[RCIM sharedRCIM] connectWithToken:token success:^(NSString *userId) {
-//            [self connectSucces:command userId:userId];
-            NSArray *chatList = [self conversationListAccept];
-            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:chatList];
-            [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-        } error:^(RCConnectErrorCode status) {
-            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsInt:status];
-            [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-        } tokenIncorrect:^{
-            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"token不正确"];
-            [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
-        }];
-    } failure:^(NSError *err) {
-        NSLog(@"%@", err);
-    }];
+//    [AFHttpTool loginWithPhone:userName password:password region:@"86" success:^(id response) {
+//        NSLog(@"%@", response);
+//        NSString *token = response[@"result"][@"token"];
+//        NSString *userId = response[@"result"][@"id"];
+//        weakSelf.userId = userId;
+//        [[RCIM sharedRCIM] connectWithToken:token success:^(NSString *userId) {
+////            [self connectSucces:command userId:userId];
+//            NSArray *chatList = [self conversationListAccept];
+//            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:chatList];
+//            [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+//        } error:^(RCConnectErrorCode status) {
+//            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsInt:status];
+//            [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+//        } tokenIncorrect:^{
+//            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"token不正确"];
+//            [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+//        }];
+//    } failure:^(NSError *err) {
+//        NSLog(@"%@", err);
+//    }];
 }
 
 -(NSArray *)conversationListAccept {

@@ -26,7 +26,8 @@ typedef NS_ENUM(NSInteger, RequestMethodType) { RequestMethodTypePost = 1, Reque
                       url:(NSString *)url
                    params:(NSDictionary *)params
                   success:(void (^)(id response))success
-                  failure:(void (^)(NSError *err))failure;
+                  failure:(void (^)(NSString *))failure;
+
 
 // login
 + (void)loginWithPhone:(NSString *)phone
@@ -215,5 +216,7 @@ typedef NS_ENUM(NSInteger, RequestMethodType) { RequestMethodTypePost = 1, Reque
 + (void)getFriendDetailsByID:(NSString *)friendId
                      success:(void (^)(id response))success
                      failure:(void (^)(NSError *err))failure;
+
+
 
 @end

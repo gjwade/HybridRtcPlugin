@@ -12,11 +12,22 @@
 #import <RongIMKit/RongIMKit.h>
 #import "RCDCommonDefine.h"
 
+/** 请求超时状态码 */
+static const NSInteger KTimeoutCode = -1001;
+/** 请求路径不存在 */
+static const NSInteger KURLNotExist = 404;
+/** 连接失败状态码 */
+static const NSInteger KConnectFailedCode = -1002;
+/** 域名解析错误状态码 */
+static const NSInteger KDomainErrorCode = -1003;
+/** 未定义错误状态码 */
+static const NSInteger KUndefinedErrorCode = -1099;
+
 #define DevDemoServer @"http://119.254.110.241/"         // Beijing SUN-QUAN 测试环境（北京）
 #define ProDemoServer @"http://119.254.110.79:8080/"     // Beijing Liu-Bei 线上环境（北京）
 #define PrivateCloudDemoServer @"http://139.217.26.223/" //私有云测试
 
-#define DemoServer @"http://api.sealtalk.im/" //线上正式环境
+#define ServerUrl @"http://61.172.115.245:21300/" //线上正式环境
 //#define DemoServer @"http://apiqa.rongcloud.net/" //线上非正式环境
 //#define DemoServer @"http://api.hitalk.im/" //测试环境
 
@@ -38,8 +49,8 @@
                       url:(NSString *)url
                    params:(NSDictionary *)params
                   success:(void (^)(id response))success
-                  failure:(void (^)(NSError *err))failure {
-    NSURL *baseURL = [NSURL URLWithString:DemoServer];
+                  failure:(void (^)(NSString *errorMessage))failure {
+    NSURL *baseURL = [NSURL URLWithString:ServerUrl];
     //获得请求管理者
     AFHTTPSessionManager *mgr = [[AFHTTPSessionManager alloc] initWithBaseURL:baseURL];
     mgr.requestSerializer = [AFJSONRequestSerializer serializer];
@@ -64,9 +75,7 @@
                 success(responseObject);
             }
         } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-            if (failure) {
-                failure(error);
-            }
+            [self requestFailed:task error:error failure:failure];
         }];
 
     } break;
@@ -91,15 +100,43 @@
                 success(responseObject);
             }
         } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-            if (failure) {
-                failure(error);
-            }
+            [self requestFailed:task error:error failure:failure];
         }];
     } break;
     default:
         break;
     }
 }
+
++ (void)requestFailed: (NSURLSessionDataTask *)task error: (NSError *)error failure:(void(^)(NSString *))failure {
+    NSInteger statusCode = error.code;
+    NSString *errorMessage = @"";
+    switch (statusCode) {
+        case KTimeoutCode:
+            errorMessage = [NSString stringWithFormat:@"[%ld]  %@", statusCode, @"请求超时"];
+            break;
+        case KURLNotExist:
+            errorMessage = [NSString stringWithFormat:@"[%ld]  %@", statusCode, @"请求路径不存在"];
+            break;
+        case KConnectFailedCode:
+            errorMessage = [NSString stringWithFormat:@"[%ld]  %@", statusCode, @"连接失败"];
+            break;
+        case KDomainErrorCode:
+            errorMessage = [NSString stringWithFormat:@"[%ld]  %@", statusCode, @"域名解析异常"];
+            break;
+        case KUndefinedErrorCode:
+            errorMessage = [NSString stringWithFormat:@"[%ld]  %@", statusCode, @"未定义错误"];
+            break;
+        default:
+            errorMessage = @"服务器维护";
+            break;
+    }
+    if (failure) {
+        failure(errorMessage);
+    }
+}
+
+/*
 
 // check phone available
 + (void)checkPhoneNumberAvailable:(NSString *)region
@@ -607,4 +644,5 @@
                           success:success
                           failure:failure];
 }
+ */
 @end
