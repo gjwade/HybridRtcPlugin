@@ -271,6 +271,11 @@ typedef void(^MessageGlobalBlock)(void);
 }
 
 -(NSArray *)conversationListAccept {
+    RCUserInfo *currentUser = [[RCIMClient sharedRCIMClient] currentUserInfo];
+    NSLog(@"%@", currentUser);
+    if (!currentUser) {
+        return @[];
+    }
     NSArray *conversationList = [[RCIMClient sharedRCIMClient]
                                  getConversationList:@[@(ConversationType_PRIVATE),
                                                        @(ConversationType_DISCUSSION),
