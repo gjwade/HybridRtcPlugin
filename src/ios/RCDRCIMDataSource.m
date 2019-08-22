@@ -126,7 +126,8 @@
     NSArray *userIds = @[@"0814DD20DA71454186A514DD8B6F0460",
                          @"9531090493154c268c16eff48cbd8322",
                          @"9DB6539C044A46EDB63029C29A36E379",
-                         @"A90D71E3DBE3494995ABB9729B23D1B6"];
+                         @"A90D71E3DBE3494995ABB9729B23D1B6",
+                         @"C0E6617484AE450988F8CB25D07783BD"];
     resultBlock(userIds);
 }
 
