@@ -70,19 +70,21 @@ typedef void(^MessageGlobalBlock)(void);
 - (void)connectWithToken:(CDVInvokedUrlCommand *)command {
     __block CDVPluginResult *pluginResult = nil;
     __weak __typeof(self) weakSelf = self;
-//    NSString *appKey = [command.arguments objectAtIndex: 0];
+    NSString *appKey = [command.arguments objectAtIndex: 0];
     NSLog(@"%ld", [[RCIM sharedRCIM] getConnectionStatus]);
     if ([[RCIM sharedRCIM] getConnectionStatus] == ConnectionStatus_Unconnected) {
-        [[RCIM sharedRCIM] initWithAppKey:@"mgb7ka1nmd1vg"];
+        [[RCIM sharedRCIM] initWithAppKey:appKey];
         [self initialSetup];
     }
-    NSString *rongYunToken = [command.arguments objectAtIndex: 0];
-    NSString *token = [command.arguments objectAtIndex: 1];
+    NSString *rongYunToken = [command.arguments objectAtIndex: 1];
+    NSString *token = [command.arguments objectAtIndex: 2];
     [[NSUserDefaults standardUserDefaults] setValue:token forKey:@"token"];
     [[NSUserDefaults standardUserDefaults] synchronize];
     [[RCIM sharedRCIM] connectWithToken:rongYunToken success:^(NSString *userId) {
-        NSArray *chatList = [self conversationListAccept];
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray: chatList];
+//        NSArray *chatList = [self conversationListAccept];
+//        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray: chatList];
+        NSInteger unreadCount = [[RCIMClient sharedRCIMClient] getTotalUnreadCount];
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsNSInteger:unreadCount];
         [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     } error:^(RCConnectErrorCode status) {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsInt:status];
@@ -112,10 +114,6 @@ typedef void(^MessageGlobalBlock)(void);
         [pluginResult setKeepCallbackAsBool:YES];
         [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     };
-//    __block CDVPluginResult *pluginResult = nil;
-//    __weak __typeof(self) weakSelf = self;
-//    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:chatList];
-//    [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
 - (void)refreshChatList: (NSNotification *)notification {
