@@ -12,6 +12,7 @@
 #import "RCDUtilities.h"
 #import <MJExtension.h>
 #import "ConversationViewController.h"
+#import "RCDataBaseManager.h"
 
 typedef void(^MessageReceivedBlock)(void);
 typedef void(^MessageGlobalBlock)(void);
@@ -83,9 +84,26 @@ typedef void(^MessageGlobalBlock)(void);
     [[RCIM sharedRCIM] connectWithToken:rongYunToken success:^(NSString *userId) {
 //        NSArray *chatList = [self conversationListAccept];
 //        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray: chatList];
+        [weakSelf dataSync:userId];
         NSInteger unreadCount = [[RCIMClient sharedRCIMClient] getTotalUnreadCount];
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsNSInteger:unreadCount];
         [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        
+        // TODO: for test to add user to database
+        RCUserInfo *user1 = [[RCUserInfo alloc] initWithUserId:@"0814DD20DA71454186A514DD8B6F0460" name:@"肖伟" portrait:@""];
+        RCUserInfo *user2 = [[RCUserInfo alloc] initWithUserId:@"9531090493154c268c16eff48cbd8322" name:@"左海强" portrait:@""];
+        RCUserInfo *user3 = [[RCUserInfo alloc] initWithUserId:@"9DB6539C044A46EDB63029C29A36E379" name:@"宋康" portrait:@""];
+        RCUserInfo *user4 = [[RCUserInfo alloc] initWithUserId:@"A90D71E3DBE3494995ABB9729B23D1B6" name:@"胡佳妮" portrait:@""];
+        RCUserInfo *user5 = [[RCUserInfo alloc] initWithUserId:@"C0E6617484AE450988F8CB25D07783BD" name:@"潘丹凤" portrait:@""];
+        [[RCDataBaseManager shareInstance] insertUserToDB:user1];
+        [[RCDataBaseManager shareInstance] insertUserToDB:user2];
+        [[RCDataBaseManager shareInstance] insertUserToDB:user3];
+        [[RCDataBaseManager shareInstance] insertUserToDB:user4];
+        [[RCDataBaseManager shareInstance] insertUserToDB:user5];
+        
+        NSArray *userList = [[RCDataBaseManager shareInstance] getAllUserInfo];
+        NSLog(@"%@", userList);
+        
     } error:^(RCConnectErrorCode status) {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsInt:status];
         [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
@@ -422,28 +440,46 @@ typedef void(^MessageGlobalBlock)(void);
 }
 
 - (void)dataSync: (NSString *)userId {
-    [AFHttpTool getUserInfo:userId success:^(id response) {
-        NSLog(@"%@", response);
-        NSDictionary *result = response[@"result"];
-        NSString *nickname = result[@"nickname"];
-        NSString *portraitUri = result[@"portraitUri"];
-        RCUserInfo *user = [[RCUserInfo alloc] initWithUserId:userId name:nickname portrait:portraitUri];
-        if (!user.portraitUri || user.portraitUri.length <= 0) {
-            user.portraitUri = [RCDUtilities defaultUserPortrait:user];
-        }
-        [[RCDataBaseManager shareInstance] insertUserToDB:user];
-        [[RCIM sharedRCIM] refreshUserInfoCache:user withUserId:userId];
-        [RCIM sharedRCIM].currentUserInfo = user;
-    } failure:^(NSError *err) {
-        NSLog(@"%@", err);
-    }];
-    [RCDDataSource syncGroups];
-    [RCDDataSource syncFriendList:userId complete:^(NSMutableArray *friends) {
-        NSLog(@"%@", friends);
-    }];
+//    [AFHttpTool getUserInfo:userId success:^(id response) {
+//        NSLog(@"%@", response);
+//        NSDictionary *result = response[@"result"];
+//        NSString *nickname = result[@"nickname"];
+//        NSString *portraitUri = result[@"portraitUri"];
+//        RCUserInfo *user = [[RCUserInfo alloc] initWithUserId:userId name:nickname portrait:portraitUri];
+//        if (!user.portraitUri || user.portraitUri.length <= 0) {
+//            user.portraitUri = [RCDUtilities defaultUserPortrait:user];
+//        }
+//        [[RCDataBaseManager shareInstance] insertUserToDB:user];
+//        [[RCIM sharedRCIM] refreshUserInfoCache:user withUserId:userId];
+//        [RCIM sharedRCIM].currentUserInfo = user;
+//    } failure:^(NSString *err) {
+//        NSLog(@"%@", err);
+//    }];
+//    [RCDDataSource syncGroups];
+//    [RCDDataSource syncFriendList:userId complete:^(NSMutableArray *friends) {
+//        NSLog(@"%@", friends);
+//    }];
+    
+    NSString *nickname = @"";
+    if ([userId isEqualToString:@"0814DD20DA71454186A514DD8B6F0460"]) {
+        nickname = @"肖伟";
+    } else if ([userId isEqualToString:@"9531090493154c268c16eff48cbd8322"]) {
+        nickname = @"左海强";
+    } else if ([userId isEqualToString:@"9DB6539C044A46EDB63029C29A36E379"]) {
+        nickname = @"宋康";
+    } else if ([userId isEqualToString:@"A90D71E3DBE3494995ABB9729B23D1B6"]) {
+        nickname = @"胡佳妮";
+    } else if ([userId isEqualToString:@"C0E6617484AE450988F8CB25D07783BD"]) {
+        nickname = @"潘丹凤";
+    }
+    RCUserInfo *user = [[RCUserInfo alloc] initWithUserId:userId name:nickname portrait:@""];
+    [[RCDataBaseManager shareInstance] insertUserToDB:user];
+    [[RCIM sharedRCIM] refreshUserInfoCache:user withUserId:userId];
+    [RCIM sharedRCIM].currentUserInfo = user;
 }
 
 - (void)disconnect:(CDVInvokedUrlCommand*)command {
+    [[RCDataBaseManager shareInstance] closeDBForDisconnect];
     [[RCIM sharedRCIM] disconnect:false];
     CDVPluginResult *pluginResult = nil;
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"断开连接成功"];

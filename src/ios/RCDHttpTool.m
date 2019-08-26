@@ -157,7 +157,7 @@
                     }
                 }
             }
-            failure:^(NSError *err) {
+            failure:^(NSString *err) {
                 NSLog(@"getUserInfoByUserID error");
                 if (completion) {
                     dispatch_async(dispatch_get_main_queue(), ^{
@@ -173,9 +173,9 @@
     } else {
         if (completion) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                if (!userInfo.portraitUri || userInfo.portraitUri.length <= 0) {
-                    userInfo.portraitUri = [RCDUtilities defaultUserPortrait:userInfo];
-                }
+//                if (!userInfo.portraitUri || userInfo.portraitUri.length <= 0) {
+//                    userInfo.portraitUri = [RCDUtilities defaultUserPortrait:userInfo];
+//                }
                 completion(userInfo);
             });
         }

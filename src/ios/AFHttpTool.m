@@ -136,6 +136,15 @@ static const NSInteger KUndefinedErrorCode = -1099;
     }
 }
 
+// get user info
++ (void)getUserInfo:(NSString *)userId success:(void (^)(id response))success failure:(void (^)(NSString *errorMessage))failure {
+    [AFHttpTool requestWihtMethod:RequestMethodTypeGet
+                              url:[NSString stringWithFormat:@"user/%@", userId]
+                           params:nil
+                          success:success
+                          failure:failure];
+}
+
 /*
 
 // check phone available

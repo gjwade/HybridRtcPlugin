@@ -26,33 +26,30 @@
 
 //通过自己的userId获取自己的用户信息
 - (void)getUserInfo:(NSString *)userId completion:(void (^)(RCUserInfo *))completion {
-//    [RCDHTTPTOOL getUserInfoByUserID:userId
-//                          completion:^(RCUserInfo *user) {
-//                              if (user) {
-//                                  completion(user);
-//                                  return;
-//                              } else {
-//                                  user = [[RCDataBaseManager shareInstance] getUserByUserId:userId];
-//                                  if (user == nil) {
-//                                      user = [self generateDefaultUserInfo:userId];
-//                                      completion(user);
-//                                      return;
-//                                  }
-//                              }
-//                          }];
+    [RCDHTTPTOOL getUserInfoByUserID:userId completion:^(RCUserInfo *user) {
+        if (user) {
+            completion(user);
+            return;
+        } else {
+            user = [[RCDataBaseManager shareInstance] getUserByUserId:userId];
+            if (user == nil) {
+                user = [self generateDefaultUserInfo:userId];
+                completion(user);
+                return;
+            }
+        }
+    }];
     
     
-    NSDictionary *userInfo = [self readLocalFileWithName:@"userInfo"];
-    NSLog(@"%@", userInfo);
-//    NSString *userName = [[NSUserDefaults standardUserDefaults] valueForKey:userId];
-//    NSLog(@"%@", userName);
-    if (userInfo[userId]) {
-        RCUserInfo *user = [RCUserInfo new];
-        user.userId = userId;
-        user.name = userInfo[userId];
-        user.portraitUri = @"";
-        completion(user);
-    }
+//    NSDictionary *userInfo = [self readLocalFileWithName:@"userInfo"];
+//    NSLog(@"%@", userInfo);
+//    if (userInfo[userId]) {
+//        RCUserInfo *user = [RCUserInfo new];
+//        user.userId = userId;
+//        user.name = userInfo[userId];
+//        user.portraitUri = @"";
+//        completion(user);
+//    }
 }
 //通过好友详细信息或好友Id获取好友信息
 - (void)getFriendInfo:(NSString *)friendId completion:(void (^)(RCUserInfo *))completion {

@@ -84,7 +84,7 @@ typedef NS_ENUM(NSInteger, RequestMethodType) { RequestMethodTypePost = 1, Reque
               failure:(void (^)(NSError *err))failure;
 
 // get user info
-+ (void)getUserInfo:(NSString *)userId success:(void (^)(id response))success failure:(void (^)(NSError *err))failure;
++ (void)getUserInfo:(NSString *)userId success:(void (^)(id response))success failure:(void (^)(NSString *errorMessage))failure;
 
 // set user portraitUri
 + (void)setUserPortraitUri:(NSString *)portraitUrl
