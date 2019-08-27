@@ -71,14 +71,13 @@ typedef void(^MessageGlobalBlock)(void);
 - (void)connectWithToken:(CDVInvokedUrlCommand *)command {
     __block CDVPluginResult *pluginResult = nil;
     __weak __typeof(self) weakSelf = self;
-    NSString *appKey = [command.arguments objectAtIndex: 0];
-    NSLog(@"%ld", [[RCIM sharedRCIM] getConnectionStatus]);
-    if ([[RCIM sharedRCIM] getConnectionStatus] == ConnectionStatus_Unconnected) {
-        [[RCIM sharedRCIM] initWithAppKey:appKey];
-        [self initialSetup];
-    }
-    NSString *rongYunToken = [command.arguments objectAtIndex: 1];
-    NSString *token = [command.arguments objectAtIndex: 2];
+//    NSString *appKey = [command.arguments objectAtIndex: 0];
+//    if ([[RCIM sharedRCIM] getConnectionStatus] == ConnectionStatus_Unconnected) {
+//        [[RCIM sharedRCIM] initWithAppKey:appKey];
+//        [self initialSetup];
+//    }
+    NSString *rongYunToken = [command.arguments objectAtIndex: 0];
+    NSString *token = [command.arguments objectAtIndex: 1];
     [[NSUserDefaults standardUserDefaults] setValue:token forKey:@"token"];
     [[NSUserDefaults standardUserDefaults] synchronize];
     [[RCIM sharedRCIM] connectWithToken:rongYunToken success:^(NSString *userId) {
