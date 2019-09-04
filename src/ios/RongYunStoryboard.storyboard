@@ -611,8 +611,19 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
+                            <searchBar contentMode="redraw" placeholder="搜索联系人" showsCancelButton="YES" translatesAutoresizingMaskIntoConstraints="NO" id="6M4-kh-zyb">
+                                <rect key="frame" x="0.0" y="20" width="375" height="44"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="44" id="Ixu-Nt-aKj"/>
+                                </constraints>
+                                <textInputTraits key="textInputTraits"/>
+                                <scopeButtonTitles>
+                                    <string>Title</string>
+                                    <string>Title</string>
+                                </scopeButtonTitles>
+                            </searchBar>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="FzI-Bo-d98" userLabel="organizationView">
-                                <rect key="frame" x="0.0" y="20" width="375" height="60"/>
+                                <rect key="frame" x="0.0" y="64" width="375" height="60"/>
                                 <subviews>
                                     <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="3mM-Yo-1uW">
                                         <rect key="frame" x="10" y="0.0" width="355" height="60"/>
@@ -756,10 +767,10 @@
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="1HT-tY-OSf">
-                                <rect key="frame" x="0.0" y="80" width="375" height="537"/>
+                                <rect key="frame" x="0.0" y="124" width="375" height="493"/>
                                 <subviews>
                                     <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="Zkw-Wt-RBN" customClass="UserSelectTableView">
-                                        <rect key="frame" x="0.0" y="0.0" width="375" height="537"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="493"/>
                                         <color key="backgroundColor" red="0.89411764709999997" green="0.94509803920000002" blue="0.97254901959999995" alpha="1" colorSpace="deviceRGB"/>
                                     </tableView>
                                 </subviews>
@@ -774,16 +785,19 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
+                            <constraint firstItem="FzI-Bo-d98" firstAttribute="top" secondItem="6M4-kh-zyb" secondAttribute="bottom" id="0JB-lo-56p"/>
+                            <constraint firstItem="6M4-kh-zyb" firstAttribute="top" secondItem="3KQ-Ch-gSV" secondAttribute="top" id="2eE-F1-Y1d"/>
                             <constraint firstItem="vsH-SL-6xH" firstAttribute="top" secondItem="1HT-tY-OSf" secondAttribute="bottom" id="4Qm-5k-iu6"/>
                             <constraint firstItem="3KQ-Ch-gSV" firstAttribute="trailing" secondItem="1HT-tY-OSf" secondAttribute="trailing" id="4Rc-Fr-Ku8"/>
+                            <constraint firstItem="6M4-kh-zyb" firstAttribute="trailing" secondItem="3KQ-Ch-gSV" secondAttribute="trailing" id="5mQ-IK-ncz"/>
                             <constraint firstItem="vsH-SL-6xH" firstAttribute="leading" secondItem="3KQ-Ch-gSV" secondAttribute="leading" id="CF3-L1-qtq"/>
-                            <constraint firstItem="FzI-Bo-d98" firstAttribute="top" secondItem="3KQ-Ch-gSV" secondAttribute="top" id="KzV-fY-RTv"/>
                             <constraint firstItem="3KQ-Ch-gSV" firstAttribute="trailing" secondItem="FzI-Bo-d98" secondAttribute="trailing" id="NzN-TR-Ahn"/>
                             <constraint firstItem="vsH-SL-6xH" firstAttribute="trailing" secondItem="3KQ-Ch-gSV" secondAttribute="trailing" id="QTB-yh-jMG"/>
                             <constraint firstItem="vsH-SL-6xH" firstAttribute="bottom" secondItem="3KQ-Ch-gSV" secondAttribute="bottom" id="ijp-aE-5tB"/>
                             <constraint firstItem="1HT-tY-OSf" firstAttribute="leading" secondItem="3KQ-Ch-gSV" secondAttribute="leading" id="knM-oi-O77"/>
                             <constraint firstItem="FzI-Bo-d98" firstAttribute="leading" secondItem="3KQ-Ch-gSV" secondAttribute="leading" id="sf7-7o-Qsl"/>
                             <constraint firstItem="1HT-tY-OSf" firstAttribute="top" secondItem="FzI-Bo-d98" secondAttribute="bottom" id="wdA-oQ-FFv"/>
+                            <constraint firstItem="6M4-kh-zyb" firstAttribute="leading" secondItem="3KQ-Ch-gSV" secondAttribute="leading" id="z8E-qJ-dgb"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="3KQ-Ch-gSV"/>
                     </view>

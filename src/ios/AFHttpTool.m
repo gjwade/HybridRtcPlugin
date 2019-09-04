@@ -67,6 +67,9 @@ static const NSInteger KUndefinedErrorCode = -1099;
     [mgr.requestSerializer setCachePolicy:NSURLRequestReloadIgnoringLocalCacheData];
     url = [url stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
     NSLog(@"%@", url);
+    NSString *token = [[NSUserDefaults standardUserDefaults] valueForKey:@"token"];
+//    [self addHeader:@{@"token": token} forRequestSerializer:mgr.requestSerializer];
+    [mgr.requestSerializer setValue:token forHTTPHeaderField:@"token"];
     switch (methodType) {
     case RequestMethodTypeGet: {
         // GET请求
@@ -108,6 +111,13 @@ static const NSInteger KUndefinedErrorCode = -1099;
     }
 }
 
++ (void)addHeader: (NSDictionary *)headers forRequestSerializer: (AFHTTPRequestSerializer *)requestSerializer {
+    for (NSString *key in headers.allKeys) {
+        NSString *value = headers[key];
+        [requestSerializer setValue:value forHTTPHeaderField:key];
+    }
+}
+
 + (void)requestFailed: (NSURLSessionDataTask *)task error: (NSError *)error failure:(void(^)(NSString *))failure {
     NSInteger statusCode = error.code;
     NSString *errorMessage = @"";
@@ -138,9 +148,11 @@ static const NSInteger KUndefinedErrorCode = -1099;
 
 // get user info
 + (void)getUserInfo:(NSString *)userId success:(void (^)(id response))success failure:(void (^)(NSString *errorMessage))failure {
+    NSString *token = [[NSUserDefaults standardUserDefaults] valueForKey:@"token"];
+    NSDictionary *paramters = @{@"userId": userId, @"token": token};
     [AFHttpTool requestWihtMethod:RequestMethodTypeGet
-                              url:[NSString stringWithFormat:@"user/%@", userId]
-                           params:nil
+                              url:@"identify/users/id"
+                           params:paramters
                           success:success
                           failure:failure];
 }

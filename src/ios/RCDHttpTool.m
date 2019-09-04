@@ -117,12 +117,12 @@
             success:^(id response) {
                 if (response) {
                     NSString *code = [NSString stringWithFormat:@"%@", response[@"code"]];
-                    if ([code isEqualToString:@"200"]) {
-                        NSDictionary *dic = response[@"result"];
+                    if ([code isEqualToString:@"0"]) {
+                        NSDictionary *dic = response[@"content"][@"info"];
                         RCUserInfo *user = [RCUserInfo new];
-                        user.userId = dic[@"id"];
-                        user.name = [dic objectForKey:@"nickname"];
-                        user.portraitUri = [dic objectForKey:@"portraitUri"];
+                        user.userId = dic[@"userId"];
+                        user.name = [dic objectForKey:@"userName"];
+                        user.portraitUri = @"";
                         if (!user.portraitUri || user.portraitUri.length <= 0) {
                             user.portraitUri = [RCDUtilities defaultUserPortrait:user];
                         }

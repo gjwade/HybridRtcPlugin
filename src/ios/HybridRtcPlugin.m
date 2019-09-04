@@ -68,6 +68,7 @@ typedef void(^MessageGlobalBlock)(void);
     pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:@"sdk初始化成功"];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
+
 - (void)connectWithToken:(CDVInvokedUrlCommand *)command {
     __block CDVPluginResult *pluginResult = nil;
     __weak __typeof(self) weakSelf = self;
@@ -89,19 +90,19 @@ typedef void(^MessageGlobalBlock)(void);
         [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
         
         // TODO: for test to add user to database
-        RCUserInfo *user1 = [[RCUserInfo alloc] initWithUserId:@"0814DD20DA71454186A514DD8B6F0460" name:@"肖伟" portrait:@""];
-        RCUserInfo *user2 = [[RCUserInfo alloc] initWithUserId:@"9531090493154c268c16eff48cbd8322" name:@"左海强" portrait:@""];
-        RCUserInfo *user3 = [[RCUserInfo alloc] initWithUserId:@"9DB6539C044A46EDB63029C29A36E379" name:@"宋康" portrait:@""];
-        RCUserInfo *user4 = [[RCUserInfo alloc] initWithUserId:@"A90D71E3DBE3494995ABB9729B23D1B6" name:@"胡佳妮" portrait:@""];
-        RCUserInfo *user5 = [[RCUserInfo alloc] initWithUserId:@"C0E6617484AE450988F8CB25D07783BD" name:@"潘丹凤" portrait:@""];
-        [[RCDataBaseManager shareInstance] insertUserToDB:user1];
-        [[RCDataBaseManager shareInstance] insertUserToDB:user2];
-        [[RCDataBaseManager shareInstance] insertUserToDB:user3];
-        [[RCDataBaseManager shareInstance] insertUserToDB:user4];
-        [[RCDataBaseManager shareInstance] insertUserToDB:user5];
-        
-        NSArray *userList = [[RCDataBaseManager shareInstance] getAllUserInfo];
-        NSLog(@"%@", userList);
+//        RCUserInfo *user1 = [[RCUserInfo alloc] initWithUserId:@"0814DD20DA71454186A514DD8B6F0460" name:@"肖伟" portrait:@""];
+//        RCUserInfo *user2 = [[RCUserInfo alloc] initWithUserId:@"9531090493154c268c16eff48cbd8322" name:@"左海强" portrait:@""];
+//        RCUserInfo *user3 = [[RCUserInfo alloc] initWithUserId:@"9DB6539C044A46EDB63029C29A36E379" name:@"宋康" portrait:@""];
+//        RCUserInfo *user4 = [[RCUserInfo alloc] initWithUserId:@"A90D71E3DBE3494995ABB9729B23D1B6" name:@"胡佳妮" portrait:@""];
+//        RCUserInfo *user5 = [[RCUserInfo alloc] initWithUserId:@"C0E6617484AE450988F8CB25D07783BD" name:@"潘丹凤" portrait:@""];
+//        [[RCDataBaseManager shareInstance] insertUserToDB:user1];
+//        [[RCDataBaseManager shareInstance] insertUserToDB:user2];
+//        [[RCDataBaseManager shareInstance] insertUserToDB:user3];
+//        [[RCDataBaseManager shareInstance] insertUserToDB:user4];
+//        [[RCDataBaseManager shareInstance] insertUserToDB:user5];
+//
+//        NSArray *userList = [[RCDataBaseManager shareInstance] getAllUserInfo];
+//        NSLog(@"%@", userList);
         
     } error:^(RCConnectErrorCode status) {
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsInt:status];
