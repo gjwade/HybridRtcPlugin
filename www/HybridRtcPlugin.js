@@ -13,6 +13,10 @@ hybridRtc.prototype.initWithAppKey = function(arg0, success, error) {
     exec(success, error, "HybridRtcPlugin", "initWithAppKey", arg0);
 };
 
+hybridRtc.prototype.getRongYunToken = function(arg0, success, error) {
+    exec(success, error, "HybridRtcPlugin", "getRongYunToken", arg0);
+};
+
 hybridRtc.prototype.connectWithToken = function(arg0, success, error) {
     exec(success, error, "HybridRtcPlugin", "connectWithToken", arg0);
 };

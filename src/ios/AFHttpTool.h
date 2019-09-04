@@ -19,6 +19,23 @@ typedef NS_ENUM(NSInteger, RequestMethodType) { RequestMethodTypePost = 1, Reque
  *  @param methodType   请求方法
  *  @param url          请求路径
  *  @param params       请求参数
+ *  @param headers      请求头
+ *  @param success 请求成功后的回调（请将请求成功后想做的事情写到这个block中）
+ *  @param failure 请求失败后的回调（请将请求失败后想做的事情写到这个block中）
+ */
++ (void)requestWihtMethod:(RequestMethodType)methodType
+                      url:(NSString *)url
+                   params:(NSDictionary *)params
+                   headers:(NSDictionary *)headers
+                  success:(void (^)(id response))success
+                  failure:(void (^)(NSString *))failure;
+
+/**
+ *  发送一个请求
+ *
+ *  @param methodType   请求方法
+ *  @param url          请求路径
+ *  @param params       请求参数
  *  @param success 请求成功后的回调（请将请求成功后想做的事情写到这个block中）
  *  @param failure 请求失败后的回调（请将请求失败后想做的事情写到这个block中）
  */
@@ -27,7 +44,8 @@ typedef NS_ENUM(NSInteger, RequestMethodType) { RequestMethodTypePost = 1, Reque
                    params:(NSDictionary *)params
                   success:(void (^)(id response))success
                   failure:(void (^)(NSString *))failure;
-
+// 获取融云token
++(void)getRongYunTokenWithAppKey: (NSString *)appKey appSecret: (NSString *)appSecret userId: (NSString *)userId userName: (NSString *)userName success:(void (^)(id response))success failure:(void (^)(NSString *errorMessage))failure;
 
 // login
 + (void)loginWithPhone:(NSString *)phone

@@ -69,6 +69,29 @@ typedef void(^MessageGlobalBlock)(void);
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
+- (void)getRongYunToken:(CDVInvokedUrlCommand*)command {
+    __block CDVPluginResult *pluginResult = nil;
+    NSString *appKey = [command.arguments objectAtIndex: 0];
+    NSString *appSecret = [command.arguments objectAtIndex: 1];
+    NSString *userId = [command.arguments objectAtIndex: 2];
+    NSString *userName = [command.arguments objectAtIndex: 3];
+    NSString *rongYunToken = [[NSUserDefaults standardUserDefaults] valueForKey:userId];
+    if (rongYunToken) {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:rongYunToken];
+        [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        return;
+    }
+    __weak __typeof(self) weakSelf = self;
+    [AFHttpTool getRongYunTokenWithAppKey:appKey appSecret:appSecret userId:userId userName:userName success:^(id response) {
+        NSLog(@"%@", response);
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:response[@"token"]];
+        [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+        [[NSUserDefaults standardUserDefaults] setObject:response[@"token"] forKey:response[@"userId"]];
+    } failure:^(NSString *errorMessage) {
+        NSLog(@"%@", errorMessage);
+    }];
+}
+
 - (void)connectWithToken:(CDVInvokedUrlCommand *)command {
     __block CDVPluginResult *pluginResult = nil;
     __weak __typeof(self) weakSelf = self;
@@ -440,42 +463,42 @@ typedef void(^MessageGlobalBlock)(void);
 }
 
 - (void)dataSync: (NSString *)userId {
-//    [AFHttpTool getUserInfo:userId success:^(id response) {
-//        NSLog(@"%@", response);
-//        NSDictionary *result = response[@"result"];
-//        NSString *nickname = result[@"nickname"];
-//        NSString *portraitUri = result[@"portraitUri"];
-//        RCUserInfo *user = [[RCUserInfo alloc] initWithUserId:userId name:nickname portrait:portraitUri];
+    [AFHttpTool getUserInfo:userId success:^(id response) {
+        NSLog(@"%@", response);
+        NSDictionary *result = response[@"content"][@"info"];
+        NSString *nickname = result[@"userName"];
+        NSString *portraitUri = @"";
+        RCUserInfo *user = [[RCUserInfo alloc] initWithUserId:userId name:nickname portrait:portraitUri];
 //        if (!user.portraitUri || user.portraitUri.length <= 0) {
 //            user.portraitUri = [RCDUtilities defaultUserPortrait:user];
 //        }
-//        [[RCDataBaseManager shareInstance] insertUserToDB:user];
-//        [[RCIM sharedRCIM] refreshUserInfoCache:user withUserId:userId];
-//        [RCIM sharedRCIM].currentUserInfo = user;
-//    } failure:^(NSString *err) {
-//        NSLog(@"%@", err);
-//    }];
+        [[RCDataBaseManager shareInstance] insertUserToDB:user];
+        [[RCIM sharedRCIM] refreshUserInfoCache:user withUserId:userId];
+        [RCIM sharedRCIM].currentUserInfo = user;
+    } failure:^(NSString *err) {
+        NSLog(@"%@", err);
+    }];
 //    [RCDDataSource syncGroups];
 //    [RCDDataSource syncFriendList:userId complete:^(NSMutableArray *friends) {
 //        NSLog(@"%@", friends);
 //    }];
     
-    NSString *nickname = @"";
-    if ([userId isEqualToString:@"0814DD20DA71454186A514DD8B6F0460"]) {
-        nickname = @"肖伟";
-    } else if ([userId isEqualToString:@"9531090493154c268c16eff48cbd8322"]) {
-        nickname = @"左海强";
-    } else if ([userId isEqualToString:@"9DB6539C044A46EDB63029C29A36E379"]) {
-        nickname = @"宋康";
-    } else if ([userId isEqualToString:@"A90D71E3DBE3494995ABB9729B23D1B6"]) {
-        nickname = @"胡佳妮";
-    } else if ([userId isEqualToString:@"C0E6617484AE450988F8CB25D07783BD"]) {
-        nickname = @"潘丹凤";
-    }
-    RCUserInfo *user = [[RCUserInfo alloc] initWithUserId:userId name:nickname portrait:@""];
-    [[RCDataBaseManager shareInstance] insertUserToDB:user];
-    [[RCIM sharedRCIM] refreshUserInfoCache:user withUserId:userId];
-    [RCIM sharedRCIM].currentUserInfo = user;
+//    NSString *nickname = @"";
+//    if ([userId isEqualToString:@"0814DD20DA71454186A514DD8B6F0460"]) {
+//        nickname = @"肖伟";
+//    } else if ([userId isEqualToString:@"9531090493154c268c16eff48cbd8322"]) {
+//        nickname = @"左海强";
+//    } else if ([userId isEqualToString:@"9DB6539C044A46EDB63029C29A36E379"]) {
+//        nickname = @"宋康";
+//    } else if ([userId isEqualToString:@"A90D71E3DBE3494995ABB9729B23D1B6"]) {
+//        nickname = @"胡佳妮";
+//    } else if ([userId isEqualToString:@"C0E6617484AE450988F8CB25D07783BD"]) {
+//        nickname = @"潘丹凤";
+//    }
+//    RCUserInfo *user = [[RCUserInfo alloc] initWithUserId:userId name:nickname portrait:@""];
+//    [[RCDataBaseManager shareInstance] insertUserToDB:user];
+//    [[RCIM sharedRCIM] refreshUserInfoCache:user withUserId:userId];
+//    [RCIM sharedRCIM].currentUserInfo = user;
 }
 
 - (void)disconnect:(CDVInvokedUrlCommand*)command {

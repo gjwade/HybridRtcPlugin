@@ -12,6 +12,7 @@
 - (void)minus:(CDVInvokedUrlCommand*)command;
 
 - (void)initWithAppKey:(CDVInvokedUrlCommand*)command;
+- (void)getRongYunToken:(CDVInvokedUrlCommand*)command;
 - (void)connectWithToken:(CDVInvokedUrlCommand*)command;
 - (void)addGlobalListener:(CDVInvokedUrlCommand *)command;
 - (void)addMessageReceivedListener:(CDVInvokedUrlCommand *)command;

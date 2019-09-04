@@ -11,6 +11,7 @@
 #import <AFNetworking.h>
 #import <RongIMKit/RongIMKit.h>
 #import "RCDCommonDefine.h"
+#import <CommonCrypto/CommonDigest.h>
 
 /** 请求超时状态码 */
 static const NSInteger KTimeoutCode = -1001;
@@ -48,19 +49,20 @@ static const NSInteger KUndefinedErrorCode = -1099;
 + (void)requestWihtMethod:(RequestMethodType)methodType
                       url:(NSString *)url
                    params:(NSDictionary *)params
+                   headers:(NSDictionary *)headers
                   success:(void (^)(id response))success
                   failure:(void (^)(NSString *errorMessage))failure {
     NSURL *baseURL = [NSURL URLWithString:ServerUrl];
     //获得请求管理者
     AFHTTPSessionManager *mgr = [[AFHTTPSessionManager alloc] initWithBaseURL:baseURL];
-    mgr.requestSerializer = [AFJSONRequestSerializer serializer];
+//    mgr.requestSerializer = [AFJSONRequestSerializer serializer];
     
 #ifdef ContentType
     mgr.responseSerializer.acceptableContentTypes = [NSSet setWithObject:ContentType];
 #endif
     mgr.requestSerializer.HTTPShouldHandleCookies = YES;
     NSString *cookieString = [[NSUserDefaults standardUserDefaults] objectForKey:@"UserCookies"];
-
+    
     if (cookieString) {
         [mgr.requestSerializer setValue:cookieString forHTTPHeaderField:@"Cookie"];
     }
@@ -68,47 +70,59 @@ static const NSInteger KUndefinedErrorCode = -1099;
     url = [url stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
     NSLog(@"%@", url);
     NSString *token = [[NSUserDefaults standardUserDefaults] valueForKey:@"token"];
-//    [self addHeader:@{@"token": token} forRequestSerializer:mgr.requestSerializer];
-    [mgr.requestSerializer setValue:token forHTTPHeaderField:@"token"];
-    switch (methodType) {
-    case RequestMethodTypeGet: {
-        // GET请求
-        [mgr GET:url parameters:params progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-            if (success) {
-                success(responseObject);
-            }
-        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-            [self requestFailed:task error:error failure:failure];
-        }];
-
-    } break;
-    case RequestMethodTypePost: {
-        // POST请求
-        [mgr POST:url parameters:params progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-            if (success) {
-                if ([url isEqualToString:@"user/login"]) {
-                    NSHTTPURLResponse *response = (NSHTTPURLResponse *)task.response;
-                    NSString *cookieString = [[response allHeaderFields] valueForKey:@"Set-Cookie"];
-                    NSMutableString *finalCookie = [NSMutableString new];
-                    //                      NSData *data = [NSKeyedArchiver
-                    //                      archivedDataWithRootObject:cookieString];
-                    NSArray *cookieStrings = [cookieString componentsSeparatedByString:@","];
-                    for (NSString *temp in cookieStrings) {
-                        NSArray *tempArr = [temp componentsSeparatedByString:@";"];
-                        [finalCookie appendString:[NSString stringWithFormat:@"%@;", tempArr[0]]];
-                    }
-                    [[NSUserDefaults standardUserDefaults] setObject:finalCookie forKey:@"UserCookies"];
-                    [[NSUserDefaults standardUserDefaults] synchronize];
-                }
-                success(responseObject);
-            }
-        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-            [self requestFailed:task error:error failure:failure];
-        }];
-    } break;
-    default:
-        break;
+    if (token) {
+        [self addHeader:@{@"token": token} forRequestSerializer:mgr.requestSerializer];
     }
+    if (headers) {
+        [self addHeader:headers forRequestSerializer:mgr.requestSerializer];
+    }
+    switch (methodType) {
+        case RequestMethodTypeGet: {
+            // GET请求
+            [mgr GET:url parameters:params progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                if (success) {
+                    success(responseObject);
+                }
+            } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                [self requestFailed:task error:error failure:failure];
+            }];
+            
+        } break;
+        case RequestMethodTypePost: {
+            // POST请求
+            [mgr POST:url parameters:params progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                if (success) {
+                    if ([url isEqualToString:@"user/login"]) {
+                        NSHTTPURLResponse *response = (NSHTTPURLResponse *)task.response;
+                        NSString *cookieString = [[response allHeaderFields] valueForKey:@"Set-Cookie"];
+                        NSMutableString *finalCookie = [NSMutableString new];
+                        //                      NSData *data = [NSKeyedArchiver
+                        //                      archivedDataWithRootObject:cookieString];
+                        NSArray *cookieStrings = [cookieString componentsSeparatedByString:@","];
+                        for (NSString *temp in cookieStrings) {
+                            NSArray *tempArr = [temp componentsSeparatedByString:@";"];
+                            [finalCookie appendString:[NSString stringWithFormat:@"%@;", tempArr[0]]];
+                        }
+                        [[NSUserDefaults standardUserDefaults] setObject:finalCookie forKey:@"UserCookies"];
+                        [[NSUserDefaults standardUserDefaults] synchronize];
+                    }
+                    success(responseObject);
+                }
+            } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                [self requestFailed:task error:error failure:failure];
+            }];
+        } break;
+        default:
+            break;
+    }
+}
+
++ (void)requestWihtMethod:(RequestMethodType)methodType
+                      url:(NSString *)url
+                   params:(NSDictionary *)params
+                  success:(void (^)(id response))success
+                  failure:(void (^)(NSString *errorMessage))failure {
+    [self requestWihtMethod:methodType url:url params:params headers:nil success:success failure:failure];
 }
 
 + (void)addHeader: (NSDictionary *)headers forRequestSerializer: (AFHTTPRequestSerializer *)requestSerializer {
@@ -144,6 +158,36 @@ static const NSInteger KUndefinedErrorCode = -1099;
     if (failure) {
         failure(errorMessage);
     }
+}
+// get rongyun token
++(void)getRongYunTokenWithAppKey: (NSString *)appKey appSecret: (NSString *)appSecret userId: (NSString *)userId userName: (NSString *)userName success:(void (^)(id response))success failure:(void (^)(NSString *errorMessage))failure {
+    NSString *urlStr =@"https://api-cn.ronghub.com/user/getToken.json";
+    NSDictionary *parameters =@{@"userId":userId,
+                                @"name":userName,
+                                @"portraitUri":@""};
+    
+    NSString * timestamp = [[NSString alloc] initWithFormat:@"%ld",(NSInteger)[NSDate timeIntervalSinceReferenceDate]];
+    NSString * nonce = [NSString stringWithFormat:@"%d",arc4random()];
+    NSString * signatureStr = [NSString stringWithFormat:@"%@%@%@", appSecret, nonce, timestamp];
+    NSString *signature = [self sha1:signatureStr];
+    NSDictionary *headerParameters = @{@"Content-Type": @"application/x-www-form-urlencoded",
+                                       @"App-Key": appKey,
+                                       @"Nonce": nonce,
+                                       @"Timestamp": timestamp,
+                                       @"Signature": signature};
+    [AFHttpTool requestWihtMethod:RequestMethodTypePost url:urlStr params:parameters headers:headerParameters success: success failure:failure];
+}
+
++ (NSString *)sha1:(NSString *)inputString{
+    NSData *data = [inputString dataUsingEncoding:NSUTF8StringEncoding];
+    uint8_t digest[CC_SHA1_DIGEST_LENGTH];
+    CC_SHA1(data.bytes,(unsigned int)data.length,digest);
+    NSMutableString *outputString = [NSMutableString stringWithCapacity:CC_SHA1_DIGEST_LENGTH];
+    
+    for (int i = 0; i < CC_SHA1_DIGEST_LENGTH; i++) {
+        [outputString appendFormat:@"%02x",digest[i]];
+    }
+    return [outputString lowercaseString];
 }
 
 // get user info
