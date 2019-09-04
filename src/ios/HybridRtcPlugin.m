@@ -13,6 +13,7 @@
 #import <MJExtension.h>
 #import "ConversationViewController.h"
 #import "RCDataBaseManager.h"
+#import "RCDUserInfoManager.h"
 
 typedef void(^MessageReceivedBlock)(void);
 typedef void(^MessageGlobalBlock)(void);
@@ -410,10 +411,10 @@ typedef void(^MessageGlobalBlock)(void);
 
 - (NSString *)targetNameSetup: (RCConversation *)conversation {
     NSString *targetName = @"";
-    NSDictionary *userInfo = [self readLocalFileWithName:@"userInfo"];
+    RCUserInfo *userInfo = [[RCDataBaseManager shareInstance] getUserByUserId:conversation.targetId];
     switch (conversation.conversationType) {
         case ConversationType_PRIVATE:
-            targetName = userInfo[conversation.targetId];
+            targetName = userInfo.name;
             break;
         case ConversationType_GROUP:
             targetName = @"群聊";
@@ -451,6 +452,10 @@ typedef void(^MessageGlobalBlock)(void);
         groupInfo.groupId = targetId;
         groupInfo.groupName = conversationTitle;
         [[RCIM sharedRCIM] refreshGroupInfoCache:groupInfo withGroupId:targetId];
+    } else if (conversationType == ConversationType_PRIVATE) {
+        [[RCDUserInfoManager shareInstance] getUserInfo:targetId completion:^(RCUserInfo *user) {
+            NSLog(@"%@", user.name);
+        }];
     }
     
     UINavigationController *mainVC = [[UINavigationController alloc] initWithRootViewController:conversationVC];
