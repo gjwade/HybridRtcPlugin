@@ -167,9 +167,10 @@ typedef void(^MessageGlobalBlock)(void);
 - (void)getConversationList:(CDVInvokedUrlCommand *)command {
     __block CDVPluginResult *pluginResult = nil;
     __weak __typeof(self) weakSelf = self;
-    NSArray *chatList = [self conversationListAccept];
-    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:chatList];
-    [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    [self conversationListAccept:^(NSArray *chatList) {
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:chatList];
+        [weakSelf.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
+    }];
 }
 
 - (void)removeConversation:(CDVInvokedUrlCommand*)command {
@@ -310,11 +311,11 @@ typedef void(^MessageGlobalBlock)(void);
 //    }];
 }
 
--(NSArray *)conversationListAccept {
+-(void)conversationListAccept: (void(^)(NSArray *))completion {
     RCUserInfo *currentUser = [[RCIMClient sharedRCIMClient] currentUserInfo];
     NSLog(@"%@", currentUser);
     if (!currentUser) {
-        return @[];
+        completion(@[]);
     }
     NSArray *conversationList = [[RCIMClient sharedRCIMClient]
                                  getConversationList:@[@(ConversationType_PRIVATE),
@@ -325,9 +326,19 @@ typedef void(^MessageGlobalBlock)(void);
                                                        @(ConversationType_PUBLICSERVICE)]];
     NSLog(@"%@", conversationList);
     NSMutableArray *resultList = [NSMutableArray array];
-    for (RCConversation *conversation in conversationList) {
-        NSDictionary *result = [self toNSDictionary:conversation];
-        [resultList addObject:result];
+    dispatch_queue_t queue =  dispatch_queue_create("searialQueue", NULL);
+    for (NSInteger i = 0; i < conversationList.count; i++) {
+        RCConversation *conversation = conversationList[i];
+        dispatch_async(queue, ^{
+            
+            NSLog(@"下载图片%ld----%@", i, [NSThread currentThread]);
+            [self toNSDictionary:conversation completion:^(NSDictionary *userDict) {
+                [resultList addObject:userDict];
+                if (resultList.count == conversationList.count) {
+                    completion(resultList);
+                }
+            }];
+        });
     }
 //
 //    NSMutableArray *latestMessageList = [NSMutableArray array];
@@ -352,17 +363,13 @@ typedef void(^MessageGlobalBlock)(void);
 //        }
 //        [resultList addObject:dict];
 //    }
-    
-    NSLog(@"%@", resultList);
-    return resultList;
 }
 
-- (NSMutableDictionary *)toNSDictionary: (RCConversation *)conversation {
+- (void)toNSDictionary: (RCConversation *)conversation completion: (void(^)(NSDictionary *))completion {
+    NSLog(@"toNSDictionary");
     NSMutableDictionary *dictionary = [[NSMutableDictionary alloc] init];
     [dictionary setValue: [NSNumber numberWithInteger:conversation.conversationType] forKey:@"conversationType"];
     [dictionary setValue:conversation.targetId forKey:@"targetId"];
-    NSString *targetName = [self targetNameSetup:conversation];
-    [dictionary setValue:targetName forKey:@"targetName"];
     [dictionary setValue:conversation.conversationTitle forKey:@"conversationTitle"];
     [dictionary setValue: [NSNumber numberWithInteger:conversation.unreadMessageCount] forKey:@"unreadMessageCount"];
     [dictionary setValue: [NSNumber numberWithInteger:conversation.isTop] forKey:@"isTop"];
@@ -375,12 +382,14 @@ typedef void(^MessageGlobalBlock)(void);
     [dictionary setValue:conversation.senderUserId forKey:@"senderUserId"];
     [dictionary setValue: [NSNumber numberWithInteger:conversation.lastestMessageId] forKey:@"lastestMessageId"];
     [dictionary setValue:[NSNumber numberWithInteger:conversation.lastestMessageDirection] forKey:@"lastestMessageDirection"];
-//    [dictionary setValue:conversation.jsonDict forKey:@"jsonDict"];
     [dictionary setValue:conversation.lastestMessageUId forKey:@"lastestMessageUId"];
     [dictionary setValue:[NSNumber numberWithInteger:conversation.hasUnreadMentioned] forKey:@"hasUnreadMentioned"];
     NSString *messageContent = [self messageContentSetup:conversation.lastestMessage objectName:conversation.objectName];
     [dictionary setValue:messageContent  forKey:@"messageContent"];
-    return dictionary;
+    [self targetNameSetup:conversation completion:^(NSString *targetName) {
+        [dictionary setValue:targetName forKey:@"targetName"];
+        completion(dictionary);
+    }];
 }
 
 - (NSString *)messageContentSetup: (RCMessageContent *)latestMessage objectName: (NSString *)objectName {
@@ -409,23 +418,40 @@ typedef void(^MessageGlobalBlock)(void);
     return content;
 }
 
-- (NSString *)targetNameSetup: (RCConversation *)conversation {
-    NSString *targetName = @"";
-    RCUserInfo *userInfo = [[RCDataBaseManager shareInstance] getUserByUserId:conversation.targetId];
+- (void)targetNameSetup: (RCConversation *)conversation completion: (void(^)(NSString *))completion {
+    NSLog(@"targetNameSetup");
     switch (conversation.conversationType) {
         case ConversationType_PRIVATE:
-            targetName = userInfo.name;
+            [self privateTargetNameSetup:conversation completion:completion];
             break;
         case ConversationType_GROUP:
-            targetName = @"群聊";
+            completion(@"群聊");
             break;
         case ConversationType_SYSTEM:
-            targetName = @"系统消息助手";
+            completion(@"系统消息助手");
             break;
         default:
             break;
     }
-    return targetName;
+}
+
+- (void)privateTargetNameSetup:(RCConversation *)conversation completion: (void(^)(NSString *))completion {
+    NSLog(@"privateTargetNameSetup");
+    [self getUserByUserId:conversation.targetId completion:^(RCUserInfo * user) {
+        completion(user.name);
+    }];
+}
+
+-(void)getUserByUserId: (NSString *)userId completion: (void(^)(RCUserInfo *))completion {
+    NSLog(@"getUserByUserId");
+    RCUserInfo *userInfo = [[RCDataBaseManager shareInstance] getUserByUserId:userId];
+    if (userInfo) {
+        completion(userInfo);
+    } else {
+        [[RCDUserInfoManager shareInstance] getUserInfo:userId completion:^(RCUserInfo *user) {
+            completion(user);
+        }];
+    }
 }
 
 - (void)pushToConversationPage:(CDVInvokedUrlCommand *)command {
