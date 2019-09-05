@@ -316,6 +316,7 @@ typedef void(^MessageGlobalBlock)(void);
     NSLog(@"%@", currentUser);
     if (!currentUser) {
         completion(@[]);
+        return;
     }
     NSArray *conversationList = [[RCIMClient sharedRCIMClient]
                                  getConversationList:@[@(ConversationType_PRIVATE),
@@ -325,6 +326,10 @@ typedef void(^MessageGlobalBlock)(void);
                                                        @(ConversationType_APPSERVICE),
                                                        @(ConversationType_PUBLICSERVICE)]];
     NSLog(@"%@", conversationList);
+    if (conversationList.count == 0) {
+        completion(@[]);
+        return;
+    }
     NSMutableArray *resultList = [NSMutableArray array];
     dispatch_queue_t queue =  dispatch_queue_create("searialQueue", NULL);
     for (NSInteger i = 0; i < conversationList.count; i++) {
