@@ -14,7 +14,7 @@
 #import "UserSelectedCollectionView.h"
 #import "AFHttpTool.h"
 
-@interface UserSelectViewController ()<UICollectionViewDelegate, UICollectionViewDataSource, UserSelectTableViewDelegate, UserSelectedCollectionViewDelegate>
+@interface UserSelectViewController ()<UICollectionViewDelegate, UICollectionViewDataSource, UserSelectTableViewDelegate, UserSelectedCollectionViewDelegate, UISearchBarDelegate>
 
 @property(nonatomic, strong)NSArray *navList;
 @property(nonatomic, strong)NSArray *userList;
@@ -28,6 +28,7 @@
 @property (weak, nonatomic) IBOutlet UserSelectedCollectionView *userSelectedCollectionView;
 @property (weak, nonatomic) IBOutlet UIButton *confirmButton;
 @property (weak, nonatomic) IBOutlet UIView *confirmView;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *navListHeightConstraint;
 
 @end
 
@@ -42,11 +43,17 @@
     [self organizationListInfoLoad:self.topOrgModel.orgId];
 }
 
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
 - (void)initialSetup {
     self.title = @"人员选择";
+//    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
+//    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
     self.topOrgModel = [OrganizationModel modelWithId:@"CA56385926584520ADB29D76887F406B" name:@"奉贤区环境保护局"];
     UICollectionViewFlowLayout *flowLayout = (UICollectionViewFlowLayout*)self.collectionView.collectionViewLayout;
-//    flowLayout.estimatedItemSize = UICollectionViewFlowLayoutAutomaticSize;
     flowLayout.estimatedItemSize = CGSizeMake(30, 30);
     self.userSelectTableView.customDelegate = self;
     self.userSelectedCollectionView.customDelegate = self;
@@ -80,27 +87,6 @@
 }
 
 - (void)userListInfoLoad: (NSString *)orgId {
-//    NSMutableArray *tempDataSource = [NSMutableArray array];
-//    UserModel *user1 = [UserModel modelWithName:@"肖伟" position:@"监察大队队长" selected:NO];
-//    UserModel *user2 = [UserModel modelWithName:@"左海强" position:@"监察大队副队长" selected:NO];
-//    UserModel *user3 = [UserModel modelWithName:@"宋康" position:@"监察大队小队长" selected:NO];
-//    UserModel *user4 = [UserModel modelWithName:@"肖伟1" position:@"监察大队队长" selected:NO];
-//    UserModel *user5 = [UserModel modelWithName:@"左海强1" position:@"监察大队副队长" selected:NO];
-//    UserModel *user6 = [UserModel modelWithName:@"宋康1" position:@"监察大队小队长" selected:NO];
-//    UserModel *user7 = [UserModel modelWithName:@"肖伟2" position:@"监察大队队长" selected:NO];
-//    UserModel *user8 = [UserModel modelWithName:@"左海强2" position:@"监察大队副队长" selected:NO];
-//    UserModel *user9 = [UserModel modelWithName:@"宋康2" position:@"监察大队小队长" selected:NO];
-//    [tempDataSource addObject:user1];
-//    [tempDataSource addObject:user2];
-//    [tempDataSource addObject:user3];
-//    [tempDataSource addObject:user4];
-//    [tempDataSource addObject:user5];
-//    [tempDataSource addObject:user6];
-//    [tempDataSource addObject:user7];
-//    [tempDataSource addObject:user8];
-//    [tempDataSource addObject:user9];
-//    self.userList = [tempDataSource copy];
-    
     NSString *urlString = @"identify/users";
     NSDictionary *params = @{@"organization.orgId": orgId, @"token": self.token};
     [AFHttpTool requestWihtMethod:RequestMethodTypeGet url:urlString params:params success:^(id response) {
@@ -137,15 +123,6 @@
 }
 
 - (void)organizationListInfoLoad: (NSString *)orgId {
-//    NSMutableArray *tempDataSource = [NSMutableArray array];
-//    OrganizationModel *org1 = [OrganizationModel modelWithName:@"奉贤环保局"];
-//    OrganizationModel *org2 = [OrganizationModel modelWithName:@"监察大队"];
-//    OrganizationModel *org3 = [OrganizationModel modelWithName:@"办公室"];
-//    [tempDataSource addObject:org1];
-//    [tempDataSource addObject:org2];
-//    [tempDataSource addObject:org3];
-//    self.organizationList = [tempDataSource copy];
-    
     NSString *urlString = @"identify/organizations/id/sonOrg";
     NSDictionary *params = @{@"orgId": orgId, @"token": self.token};
     [AFHttpTool requestWihtMethod:RequestMethodTypeGet url:urlString params:params success:^(id response) {
@@ -188,6 +165,24 @@
     UIAlertController *alertVC = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
     [alertVC addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler: action]];
     [self presentViewController:alertVC animated:YES completion:nil];
+}
+
+- (void)keyboardWillShow: (NSNotification *)notification {
+    NSDictionary *userInfo = [notification userInfo];
+    CGRect endFrame = [[userInfo objectForKey:UIKeyboardFrameEndUserInfoKey] CGRectValue];
+    CGFloat keyboardHeight = endFrame.size.height;
+    //动画执行时长
+    CGFloat animationDuration = [userInfo[UIKeyboardAnimationDurationUserInfoKey] floatValue];
+    //运行轨迹属性
+    UIViewAnimationCurve animationCurve = [userInfo[UIKeyboardAnimationCurveUserInfoKey] integerValue];
+    //这样就可以与键盘动画无缝衔接了
+    [UIView animateWithDuration:animationDuration delay:0 options:(animationCurve << 16 | UIViewAnimationOptionBeginFromCurrentState) animations:^{
+        
+    } completion:nil];
+}
+
+- (void)keyboardWillHide: (NSNotification *)notification {
+    
 }
 
 - (IBAction)confirmButtonClick:(UIButton *)sender {
@@ -263,6 +258,20 @@
         self.userSelectTableView.userList = self.userList;
     }
     [self confirmButtonActiveSetup];
+}
+
+#pragma mark -UISearchBarDelegate
+
+-(void)searchBarSearchButtonClicked:(UISearchBar *)searchBar {
+    NSLog(@"searchBarSearchButtonClicked%@", searchBar.text);
+    [self.view endEditing:true];
+    self.navListHeightConstraint.constant = 0;
+}
+
+-(void)searchBarCancelButtonClicked:(UISearchBar *)searchBar {
+    NSLog(@"searchBarCancelButtonClicked%@", searchBar.text);
+    [self.view endEditing:true];
+    self.navListHeightConstraint.constant = 44;
 }
 
 @end

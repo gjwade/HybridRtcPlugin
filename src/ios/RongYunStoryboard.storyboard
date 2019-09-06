@@ -621,16 +621,16 @@
                                     <string>Title</string>
                                     <string>Title</string>
                                 </scopeButtonTitles>
+                                <connections>
+                                    <outlet property="delegate" destination="v1H-4a-4xb" id="PcM-Dn-fIj"/>
+                                </connections>
                             </searchBar>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="FzI-Bo-d98" userLabel="organizationView">
-                                <rect key="frame" x="0.0" y="64" width="375" height="60"/>
+                                <rect key="frame" x="0.0" y="64" width="375" height="44"/>
                                 <subviews>
                                     <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="3mM-Yo-1uW">
-                                        <rect key="frame" x="10" y="0.0" width="355" height="60"/>
+                                        <rect key="frame" x="10" y="0.0" width="355" height="44"/>
                                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="60" id="ADr-v7-HWN"/>
-                                        </constraints>
                                         <collectionViewFlowLayout key="collectionViewLayout" scrollDirection="horizontal" minimumLineSpacing="10" minimumInteritemSpacing="10" id="1lC-qn-8Ma">
                                             <size key="itemSize" width="151" height="44.5"/>
                                             <size key="headerReferenceSize" width="0.0" height="0.0"/>
@@ -639,7 +639,7 @@
                                         </collectionViewFlowLayout>
                                         <cells>
                                             <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="organizationCellIdentifier" id="ad5-j4-E5l" customClass="OrganizationCollectionViewCell">
-                                                <rect key="frame" x="0.0" y="8" width="151" height="44.5"/>
+                                                <rect key="frame" x="0.0" y="-0.5" width="151" height="44.5"/>
                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                 <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
                                                     <rect key="frame" x="0.0" y="0.0" width="151" height="44.5"/>
@@ -690,7 +690,7 @@
                                         </connections>
                                     </collectionView>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="PWZ-qZ-x0Y" userLabel="separatorView">
-                                        <rect key="frame" x="0.0" y="49" width="375" height="1"/>
+                                        <rect key="frame" x="0.0" y="43" width="375" height="1"/>
                                         <color key="backgroundColor" red="0.88627450980392153" green="0.90980392156862744" blue="0.93725490196078431" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="1" id="nTv-tq-KaP"/>
@@ -701,11 +701,12 @@
                                 <constraints>
                                     <constraint firstItem="3mM-Yo-1uW" firstAttribute="leading" secondItem="FzI-Bo-d98" secondAttribute="leading" constant="10" id="PKE-4t-YM5"/>
                                     <constraint firstAttribute="bottom" secondItem="3mM-Yo-1uW" secondAttribute="bottom" id="YDC-9L-ZsL"/>
+                                    <constraint firstAttribute="height" constant="44" id="aNK-X7-Vua"/>
                                     <constraint firstItem="3mM-Yo-1uW" firstAttribute="top" secondItem="FzI-Bo-d98" secondAttribute="top" id="f6V-FK-W3H"/>
                                     <constraint firstAttribute="trailing" secondItem="PWZ-qZ-x0Y" secondAttribute="trailing" id="gWv-ge-nTv"/>
                                     <constraint firstAttribute="trailing" secondItem="3mM-Yo-1uW" secondAttribute="trailing" constant="10" id="hWn-dK-HFy"/>
                                     <constraint firstItem="PWZ-qZ-x0Y" firstAttribute="leading" secondItem="FzI-Bo-d98" secondAttribute="leading" id="l4U-tr-7zw"/>
-                                    <constraint firstAttribute="bottom" secondItem="PWZ-qZ-x0Y" secondAttribute="bottom" constant="10" id="yjb-t2-Fug"/>
+                                    <constraint firstAttribute="bottom" secondItem="PWZ-qZ-x0Y" secondAttribute="bottom" id="yjb-t2-Fug"/>
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="vsH-SL-6xH" userLabel="footerView">
@@ -766,11 +767,11 @@
                                     <constraint firstAttribute="trailing" secondItem="eTU-Y7-nxT" secondAttribute="trailing" constant="8" id="xvw-dW-g2g"/>
                                 </constraints>
                             </view>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="1HT-tY-OSf">
-                                <rect key="frame" x="0.0" y="124" width="375" height="493"/>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="1HT-tY-OSf" userLabel="listView">
+                                <rect key="frame" x="0.0" y="108" width="375" height="509"/>
                                 <subviews>
-                                    <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="Zkw-Wt-RBN" customClass="UserSelectTableView">
-                                        <rect key="frame" x="0.0" y="0.0" width="375" height="493"/>
+                                    <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" keyboardDismissMode="onDrag" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="Zkw-Wt-RBN" customClass="UserSelectTableView">
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="509"/>
                                         <color key="backgroundColor" red="0.89411764709999997" green="0.94509803920000002" blue="0.97254901959999995" alpha="1" colorSpace="deviceRGB"/>
                                     </tableView>
                                 </subviews>
@@ -805,6 +806,7 @@
                         <outlet property="collectionView" destination="3mM-Yo-1uW" id="wQF-5b-GOv"/>
                         <outlet property="confirmButton" destination="a2a-h4-uTP" id="oIp-dd-7kt"/>
                         <outlet property="confirmView" destination="eTU-Y7-nxT" id="HMU-vz-Gp5"/>
+                        <outlet property="navListHeightConstraint" destination="aNK-X7-Vua" id="aIZ-WA-HPQ"/>
                         <outlet property="userSelectTableView" destination="Zkw-Wt-RBN" id="UK3-2v-2f6"/>
                         <outlet property="userSelectedCollectionView" destination="Fuu-pa-8zQ" id="iuK-xd-Gpg"/>
                     </connections>
